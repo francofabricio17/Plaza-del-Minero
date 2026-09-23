@@ -1,23 +1,24 @@
 var scene;
 var camera;
 var renderer;
-var plaza; // Guarda el modelo de tu estatua
+var plaza; // Guarda el modelo de la estatua
 var controles;
+var arrayMeteoros = []; // Arreglo para los clones 3D de meteoros
 
 function init()
 {
     scene = new THREE.Scene();
     
-    // 1. FONDO DE AMBIENTE MINERO (Tonalidades carbón, acero y fuego de carbón/mineral)
+    // 1. FONDO DE AMBIENTE MINERO
     const canvasFondo = document.createElement('canvas');
     canvasFondo.width = 1;
     canvasFondo.height = 256;
     const ctx = canvasFondo.getContext('2d');
     const degradado = ctx.createLinearGradient(0, 0, 0, 256);
     
-    degradado.addColorStop(0, '#0d0f12');   // Gris muy oscuro / casi negro (profundidad de la mina)
-    degradado.addColorStop(0.6, '#1e252b');  // Gris acero / azulado en el centro
-    degradado.addColorStop(1, '#4a2f13');    // Tono terracota / óxido / mineral en la base
+    degradado.addColorStop(0, '#0d0f12');   // Gris muy oscuro / casi negro
+    degradado.addColorStop(0.6, '#1e252b');  // Gris acero / azulado
+    degradado.addColorStop(1, '#4a2f13');    // Tono terracota / óxido
     ctx.fillStyle = degradado;
     ctx.fillRect(0, 0, 1, 256);
     
@@ -39,10 +40,12 @@ function init()
     }
     const geomChispas = new THREE.BufferGeometry();
     
-    // Método compatible con Three.js r108
-    geomChispas.addAttribute('position', new THREE.BufferAttribute(new Float32Array(verticesChispas), 3));
+    if (geomChispas.setAttribute) {
+        geomChispas.setAttribute('position', new THREE.Float32BufferAttribute(verticesChispas, 3));
+    } else if (geomChispas.addAttribute) {
+        geomChispas.addAttribute('position', new THREE.BufferAttribute(new Float32Array(verticesChispas), 3));
+    }
     
-    // Material de polvo en suspensión o mineral brillante
     const matChispas = new THREE.PointsMaterial({
         color: 0xe0a96d,
         size: 0.15, 
@@ -57,12 +60,12 @@ function init()
     camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 2000);
     camera.position.set(0, 5, 10);
     
-    // 3. Renderizador optimizado
+    // 3. Renderizador
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.4; // Ajustado levemente para mayor claridad en sombras
+    renderer.toneMappingExposure = 1.4;
     
     if (renderer.outputColorSpace) {
         renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -73,7 +76,7 @@ function init()
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.body.appendChild(renderer.domElement);
     
-    // 4. Controles interactivos de órbita
+    // 4. Controles interactivos
     controles = new THREE.OrbitControls(camera, renderer.domElement);
     controles.enableDamping = true;
     controles.dampingFactor = 0.08;
@@ -84,33 +87,30 @@ function init()
     controles.maxDistance = 150;
     controles.maxPolarAngle = Math.PI / 2;
     
-    // 5. Iluminación temática minera potenciada
-    var ambientLight = new THREE.AmbientLight(0x4a433c, 1.5); // Aumentada luz de relleno ambiental
+    // 5. Iluminación
+    var ambientLight = new THREE.AmbientLight(0x4a433c, 1.5); 
     scene.add(ambientLight);
     
     var hemisphereLight = new THREE.HemisphereLight(0x3a4b5c, 0x241910, 1.0);
     hemisphereLight.position.set(0, 30, 0);
     scene.add(hemisphereLight);
     
-    // Luz principal cálida (Estilo antorcha/linterna)
     var directionalLight = new THREE.DirectionalLight(0xffcc80, 4.5); 
     directionalLight.position.set(20, 25, 25);
     directionalLight.castShadow = true;
     directionalLight.shadow.mapSize.width = 2048; 
     directionalLight.shadow.mapSize.height = 2048;
-    directionalLight.shadow.bias = -0.001; // Evita artefactos extraños de sombras ("shadow acne")
+    directionalLight.shadow.bias = -0.001;
     scene.add(directionalLight);
     
-    // Luz de contra lateral fría (Simula destellos metálicos de la roca o veta)
     var directionalLight2 = new THREE.DirectionalLight(0x739cb3, 2.5); 
     directionalLight2.position.set(-25, 15, -20);
     scene.add(directionalLight2);
 
-    // Foco cenital superior directo
     var spotLight = new THREE.SpotLight(0xffe0b2, 5.0);
     spotLight.position.set(0, 40, 5);
     spotLight.angle = Math.PI / 4;
-    spotLight.penumbra = 0.8; // Suaviza los bordes del cono de luz
+    spotLight.penumbra = 0.8;
     spotLight.castShadow = true;
     scene.add(spotLight);
     
@@ -119,8 +119,9 @@ function init()
     var progressBar = document.getElementById('progress-bar');
     var progressText = document.getElementById('progress-text');
     
-    // 6. Carga del Modelo .GLB de la Palliri
     var cargar = new THREE.GLTFLoader();
+    
+    // 6. Carga del Modelo .GLB de la Palliri
     cargar.load("assets/Palliri.glb", 
         function(gltf)
         {
@@ -137,12 +138,9 @@ function init()
                     if(obj.material)
                     {
                         obj.material.needsUpdate = true;
-                        
-                        // CORRECCIÓN DE OPACIDAD: Fuerza al material a reaccionar ante los reflejos de luz
                         if(obj.material.roughness !== undefined) {
                             obj.material.roughness = Math.min(obj.material.roughness, 0.55);
                         }
-                        
                         if(obj.material.map)
                         {
                             obj.material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
@@ -152,16 +150,12 @@ function init()
             });
             scene.add(plaza);
             
-            // --- DIRECCIONAMIENTO DINÁMICO DE LUCES AL MODELO ---
             var box = new THREE.Box3().setFromObject(plaza);
             var center = box.getCenter(new THREE.Vector3());
             var size = box.getSize(new THREE.Vector3());
             
-            // Forzamos a que las luces principales apunten directamente al centro de la estatua
             directionalLight.target = plaza;
             spotLight.target = plaza;
-            
-            // Reajustamos la altura del foco según las dimensiones del modelo cargado
             spotLight.position.set(center.x, center.y + size.y * 1.6, center.z + 1);
             
             controles.target.set(center.x, center.y, center.z);
@@ -188,14 +182,82 @@ function init()
             if (progressText) progressText.innerText = "Error de carga";
         }
     );
+
+    // 7. CARGA Y CLONACIÓN DE LOS METEOROS 3D
+    cargar.load("assets/meteoro.glb", function(gltf) {
+        var modeloMeteoro = gltf.scene;
+
+        for (let i = 0; i < 40; i++) {
+            var clon = modeloMeteoro.clone();
+            
+            // Posición aleatoria
+            clon.position.set(
+                (Math.random() - 0.5) * 100,
+                Math.random() * 60 + 10,
+                (Math.random() - 0.5) * 100
+            );
+            
+            // Rotación inicial aleatoria
+            clon.rotation.set(
+                Math.random() * Math.PI,
+                Math.random() * Math.PI,
+                Math.random() * Math.PI
+            );
+            
+            // Tamaño/Escala aleatoria (puedes ajustar entre 0.3 y 1.5)
+            var escala = Math.random() * 0.8 + 0.3;
+            clon.scale.set(4.5, 4.5, 4.5);
+            
+            // Sombras
+            clon.traverse(function(obj) {
+                if(obj.isMesh) {
+                    obj.castShadow = true;
+                    obj.receiveShadow = true;
+                }
+            });
+
+            // Parámetros individuales de caída y rotación
+            clon.userData = {
+                velocidadCaida: Math.random() * 0.15 + 0.05,
+                velRotacionX: (Math.random() - 0.5) * 0.05,
+                velRotacionY: (Math.random() - 0.5) * 0.05,
+                velRotacionZ: (Math.random() - 0.5) * 0.05
+            };
+            
+            scene.add(clon);
+            arrayMeteoros.push(clon);
+        }
+        console.log("Meteoros agregados correctamente a la Palliri");
+    });
 }
 
 function animate()
 {
     requestAnimationFrame(animate);
     
+    // Rotación del modelo principal
     if(plaza) {
         plaza.rotation.y += 0.01;
+    }
+
+    // ANIMACIÓN DE LOS METEOROS 3D
+    for (let i = 0; i < arrayMeteoros.length; i++) {
+        let meteoro = arrayMeteoros[i];
+        
+        // Movimiento de caída
+        meteoro.position.y -= meteoro.userData.velocidadCaida;
+        
+        // Rotaciones en los 3 ejes
+        meteoro.rotation.x += meteoro.userData.velRotacionX;
+        meteoro.rotation.y += meteoro.userData.velRotacionY;
+        meteoro.rotation.z += meteoro.userData.velRotacionZ;
+        
+        // Reaparición en la parte superior cuando caen al fondo
+        if (meteoro.position.y < -15) {
+            meteoro.position.y = 60 + Math.random() * 20;
+            meteoro.position.x = (Math.random() - 0.5) * 100;
+            meteoro.position.z = (Math.random() - 0.5) * 100;
+        }
     }
 
     controles.update();

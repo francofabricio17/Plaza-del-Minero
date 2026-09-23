@@ -1,0 +1,238 @@
+/* =========================================
+   RESET Y CONFIGURACIÓN BASE
+   ========================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    background-color: #1a1512;
+    color: #f6efe9;
+    font-family: 'Montserrat', sans-serif;
+    min-height: 100vh;
+    overflow: hidden;
+    display: flex;
+}
+
+#webgl-container { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100vw; 
+    height: 100vh; 
+    z-index: -1; 
+    pointer-events: none; 
+}
+
+.fondo-galeria {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+    background: radial-gradient(circle at 50% 50%, rgba(92, 60, 44, 0.6) 0%, #1a1512 80%), url('imagenes/fondo.jpg') no-repeat center center;
+    background-size: cover; 
+    filter: brightness(1.6) contrast(1.2); 
+    z-index: -2; 
+}
+
+/* =========================================
+   COLUMNA IZQUIERDA (Textos Mejorados 3D)
+   ========================================= */
+.columna-izquierda { 
+    position: absolute; 
+    top: 50px; 
+    left: 50px; 
+    width: 28vw;
+    min-width: 340px;
+    z-index: 10; 
+    pointer-events: auto; 
+}
+
+.texto-region { 
+    font-family: 'Montserrat', sans-serif; 
+    font-size: 0.75rem; 
+    font-weight: 700;
+    letter-spacing: 6px; 
+    text-transform: uppercase; 
+    color: #d98841; 
+    margin: 0 0 15px 0;
+    display: flex;
+    align-items: center;
+    opacity: 0.9;
+}
+
+.texto-region::after {
+    content: "";
+    height: 1px;
+    flex-grow: 1;
+    background: linear-gradient(to right, #d98841, transparent);
+    margin-left: 15px;
+    opacity: 0.5;
+}
+
+.texto-monumento { 
+    font-family: 'Cinzel', serif; 
+    font-size: 2.2rem; 
+    letter-spacing: 8px; 
+    margin: 0; 
+    text-transform: uppercase; 
+    line-height: 1; 
+    background: linear-gradient(to bottom, #ffffff 20%, #a8a39d 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.9)); 
+}
+
+.texto-monumento span { 
+    font-family: 'Cinzel Decorative', serif; 
+    display: block; 
+    font-size: 3.8rem; 
+    letter-spacing: 1px; 
+    margin-top: 5px; 
+    background: linear-gradient(to bottom, #fceabb 0%, #f8b500 40%, #d98841 70%, #8b4c1b 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(2px 3px 0px rgba(50, 20, 0, 0.9)) drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.8)) drop-shadow(0px 0px 15px rgba(217, 136, 65, 0.3)); 
+}
+
+/* =========================================
+   PANEL DE INFORMACIÓN (Estilo Placa)
+   ========================================= */
+.info-ubicacion {
+    margin-top: 35px;
+    background: linear-gradient(135deg, rgba(30, 25, 22, 0.85) 0%, rgba(15, 12, 10, 0.95) 100%);
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid rgba(217, 136, 65, 0.3);
+    border-left: 6px solid #d98841;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 15px 35px rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+}
+.info-titulo {
+    font-family: 'Cinzel', serif;
+    color: #e8a25e;
+    font-size: 1.15rem;
+    margin-top: 18px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid transparent;
+    border-image: linear-gradient(to right, #d98841, transparent) 1;
+    padding-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(217, 136, 65, 0.3);
+}
+.info-ubicacion h3:first-child { margin-top: 0; }
+.info-ubicacion p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #e3d9d0;
+    margin-bottom: 8px;
+}
+.info-ubicacion strong { color: #ffffff; font-weight: 700; letter-spacing: 0.5px; }
+
+/* =========================================
+   MAPA EN EL CENTRO (Estilo Pergamino Antiguo)
+   ========================================= */
+.mapa-centro-container {
+    position: absolute;
+    top: 50%;
+    left: 34vw; 
+    transform: translateY(-50%);
+    width: 38vw;  
+    height: 60vh; 
+    min-width: 400px;
+    z-index: 10;
+    pointer-events: auto;
+    
+    /* Fondo que simula el color del papel envejecido */
+    background: linear-gradient(135deg, #e4d0a5 0%, #c8a361 50%, #8b5a2b 100%);
+    padding: 25px 30px; /* Margen interior para el borde del pergamino */
+    
+    /* Bordes irregulares asimétricos */
+    border-radius: 8px 25px 10px 30px / 25px 10px 30px 12px;
+    
+    /* Efecto de bordes quemados (inset) y sombra exterior (outset) */
+    box-shadow: 
+        inset 0 0 40px rgba(74, 35, 17, 0.9), 
+        inset 0 0 15px rgba(0,0,0,0.6),
+        0 30px 60px rgba(0, 0, 0, 0.9), 
+        0 0 25px rgba(217, 136, 65, 0.2);
+    border: 2px solid #5a3116;
+}
+
+/* Efecto de rollos/madera en los laterales del pergamino */
+.mapa-centro-container::before,
+.mapa-centro-container::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    bottom: -5px;
+    width: 18px;
+    background: linear-gradient(to right, #3a1a0b 0%, #8b5a2b 50%, #3a1a0b 100%);
+    border-radius: 10px;
+    box-shadow: 3px 0 10px rgba(0,0,0,0.8), inset 0 0 5px rgba(0,0,0,0.5);
+    border: 1px solid #241006;
+}
+.mapa-centro-container::before { left: -10px; }
+.mapa-centro-container::after { right: -10px; }
+
+.mapa-iframe {
+    width: 100%;
+    height: 100%;
+    border-radius: 4px;
+    border: 2px solid #5a3116;
+    
+    /* Filtro sepia para darle aspecto de mapa antiguo al iframe de Google */
+    filter: sepia(0.7) hue-rotate(-10deg) saturate(0.8) contrast(1.1);
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.5), 0 0 10px rgba(0,0,0,0.5);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.mapa-iframe:hover { 
+    /* Recupera su color moderno y resalta al pasar el mouse */
+    filter: sepia(0) hue-rotate(0deg) saturate(1) contrast(1);
+    transform: scale(1.03);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9);
+    border-color: #d98841;
+    outline: 2px solid rgba(217, 136, 65, 0.5);
+    outline-offset: 5px;
+}
+
+/* =========================================
+   CONTENEDOR DERECHO (Botón Volver)
+   ========================================= */
+#contenedor-derecha {
+    position: absolute;
+    bottom: 40px;
+    right: 40px;
+    z-index: 10;
+    pointer-events: auto;
+}
+
+.action-button-back { 
+    background: linear-gradient(135deg, #d98841 0%, #7c5c4c 100%); 
+    color: #ffffff; 
+    font-family: 'Montserrat', sans-serif; 
+    font-weight: 700; 
+    text-transform: uppercase; 
+    font-size: 0.9rem; 
+    letter-spacing: 2px; 
+    padding: 16px 32px; 
+    border-radius: 30px; 
+    border: 2px solid rgba(246, 239, 233, 0.3); 
+    cursor: pointer; 
+    transition: all 0.3s ease; 
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(255,255,255,0.1); 
+}
+.action-button-back:hover { 
+    transform: translateY(-4px); 
+    box-shadow: 0 15px 25px rgba(217, 136, 65, 0.5), inset 0 0 15px rgba(255,255,255,0.2); 
+    background: linear-gradient(135deg, #f09e57 0%, #946e5b 100%); 
+    border-color: rgba(246, 239, 233, 0.6);
+}
+
+/* =========================================
+   LOADER
+   ========================================= */
+#loader-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #1a1512; z-index: 9999; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s ease, visibility 0.5s ease; }
+#loader-container.loaded { opacity: 0; visibility: hidden; }
+.loader-content { text-align: center; width: 90%; max-width: 400px; }
+.loader-brand { font-family: 'Cinzel', serif; color: #d98841; font-size: 0.9rem; letter-spacing: 4px; margin-bottom: 15px; }
+.loader-text { font-family: 'Cinzel Decorative', serif; color: #f6efe9; font-size: 1.6rem; margin-bottom: 20px; }
+.progress-bar-container { width: 100%; height: 4px; background-color: rgba(217, 136, 65, 0.15); overflow: hidden; margin-bottom: 10px; border-radius: 2px; }
+#progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #d98841, #f09e57); transition: width 0.2s ease; box-shadow: 0 0 10px #d98841; }
+#progress-text { font-family: 'Montserrat', sans-serif; color: rgba(246, 239, 233, 0.7); font-size: 0.85rem; font-weight: bold; }

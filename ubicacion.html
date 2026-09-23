@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plaza del Minero - Siglo XX - Ubicacion</title>
+    
+    <!-- Fuentes de Google -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cinzel+Decorative:wght@700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Hoja de estilos -->
+    <link rel="stylesheet" href="ubicacion.css">
+</head>
+<body>
+
+    <!-- PANTALLA DE CARGA (LOADER) -->
+    <div id="loader-container">
+        <div class="loader-content">
+            <div class="loader-brand">BOLIVIA - POTOSÍ - LLALLAGUA - SIGLO XX</div>
+            <div class="loader-text">Cargando Ubicación 3D...</div>
+            <div class="progress-bar-container">
+                <div id="progress-bar"></div>
+            </div>
+            <div id="progress-text">0%</div>
+        </div>
+    </div>
+
+    <!-- CONTENEDOR DEL MODELO 3D Y FONDO -->
+    <div id="webgl-container"></div>
+    <div class="fondo-galeria"></div>
+
+    <!-- COLUMNA IZQUIERDA (Textos informativos) -->
+    <div class="columna-izquierda">
+        <p class="texto-region">Bolivia - Potosí - Llallagua - Siglo XX</p>
+        <h1 class="texto-monumento">Ubicacion<span>Plaza Del Minero</span></h1>
+        
+        <div class="info-ubicacion">
+            <h3 class="info-titulo">Ubicación Histórica</h3>
+            <p>Situada en el corazón del campamento minero de Siglo XX, en el municipio de Llallagua. Esta plaza es el centro neurálgico de las concentraciones obreras.</p>
+            
+            <h3 class="info-titulo">Significado Social</h3>
+            <p>Representa el escenario de las grandes asambleas de la <strong>FSTMB</strong>.</p>
+            <p>Un símbolo de resistencia, lucha de clases y reivindicación social en la historia boliviana.</p>
+            
+            <h3 class="info-titulo">Datos de Ubicación</h3>
+            <p><strong>Región:</strong> Norte de Potosí</p>
+            <p><strong>Municipio:</strong> Llallagua</p>
+            <p><strong>Coordenadas:</strong> Campamento Siglo XX</p>
+        </div>
+    </div>
+
+    <!-- MAPA EN EL CENTRO (Actualizado con tamaño y coordenadas) -->
+    <div class="mapa-centro-container">
+        <iframe 
+            class="mapa-iframe" 
+            src="https://www.google.com/maps?q=-18.421199809930762,-66.5893707185817&hl=es&z=17&output=embed" 
+            allowfullscreen="" 
+            loading="lazy" 
+            referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+    </div>
+
+    <!-- CONTENEDOR DERECHO (Botón de volver) -->
+   <div id="contenedor-derecha">
+    <a href="index.html">
+        <button class="action-button-back">Volver al Inicio</button>
+    </a>
+</div>
+
+    <!-- Librerías de Three.js (Importadas desde CDN) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+    <!-- Archivo JS principal -->
+    <script src="ubicacion.js"></script>
+</body>
+</html>

@@ -3,6 +3,7 @@ var camera;
 var renderer;
 var plaza; // Guarda el modelo de tu estatua (Cesar)
 var controles;
+var arrayMeteoros = []; // Arreglo para los meteoros 3D
 
 function init()
 {
@@ -154,7 +155,9 @@ function init()
             var center = box.getCenter(new THREE.Vector3());
             
             controles.target.set(center.x, center.y, center.z);
-            camera.position.set(center.x, center.y + 4, center.z + 10);
+            
+            // Ajuste de cámara para estar un poco más alejada (z + 22) y encuadrar mejor el modelo y fondo
+            camera.position.set(center.x, center.y + 4, center.z + 22);
             controles.update();
             
             // Desvanecer el loader al finalizar
@@ -178,9 +181,49 @@ function init()
             if (progressText) progressText.innerText = "Error de carga";
         }
     );
+
+    // 8. CARGA Y CLONACIÓN DE LOS METEOROS 3D
+    cargar.load("assets/meteoro.glb", function(gltf) {
+        var modeloMeteoro = gltf.scene;
+
+        for (let i = 0; i < 40; i++) {
+            var clon = modeloMeteoro.clone();
+            
+            clon.position.set(
+                (Math.random() - 0.5) * 100,
+                Math.random() * 60 + 10,
+                (Math.random() - 0.5) * 100
+            );
+            
+            clon.rotation.set(
+                Math.random() * Math.PI,
+                Math.random() * Math.PI,
+                Math.random() * Math.PI
+            );
+            
+            clon.scale.set(4.5, 4.5, 4.5);
+            
+            clon.traverse(function(obj) {
+                if(obj.isMesh) {
+                    obj.castShadow = true;
+                    obj.receiveShadow = true;
+                }
+            });
+
+            clon.userData = {
+                velocidadCaida: Math.random() * 0.15 + 0.05,
+                velRotacionX: (Math.random() - 0.5) * 0.05,
+                velRotacionY: (Math.random() - 0.5) * 0.05,
+                velRotacionZ: (Math.random() - 0.5) * 0.05
+            };
+            
+            scene.add(clon);
+            arrayMeteoros.push(clon);
+        }
+    });
 }
 
-// 8. Ciclo de animación
+// 9. Ciclo de animación
 function animate()
 {
     requestAnimationFrame(animate);
@@ -188,6 +231,24 @@ function animate()
     // Rotación continua uniforme en el eje Y
     if(plaza) {
         plaza.rotation.y += 0.01;
+    }
+
+    // ANIMACIÓN DE LOS METEOROS 3D
+    for (let i = 0; i < arrayMeteoros.length; i++) {
+        let meteoro = arrayMeteoros[i];
+        
+        meteoro.position.y -= meteoro.userData.velocidadCaida;
+        
+        meteoro.rotation.x += meteoro.userData.velRotacionX;
+        meteoro.rotation.y += meteoro.userData.velRotacionY;
+        meteoro.rotation.z += meteoro.userData.velRotacionZ;
+        
+        // Bucle de reaparición en la parte superior
+        if (meteoro.position.y < -15) {
+            meteoro.position.y = 60 + Math.random() * 20;
+            meteoro.position.x = (Math.random() - 0.5) * 100;
+            meteoro.position.z = (Math.random() - 0.5) * 100;
+        }
     }
 
     controles.update();

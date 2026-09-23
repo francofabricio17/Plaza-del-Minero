@@ -3,12 +3,13 @@ var camera;
 var renderer;
 var plaza; // Guarda el modelo de tu estatua (Minero)
 var controles;
+var arrayMeteoros = []; // Arreglo para los clones 3D de meteoros
 
 function init()
 {
     scene = new THREE.Scene();
     
-    // 1. REINCORPORADO: FONDO DE AMBIENTE MINERO COMPLEJO (Tonalidades carbón, acero y base terracota)
+    // 1. REINCORPORADO: FONDO DE AMBIENTE MINERO COMPLEJO
     const canvasFondo = document.createElement('canvas');
     canvasFondo.width = 1;
     canvasFondo.height = 256;
@@ -29,7 +30,7 @@ function init()
     }
     scene.background = texturaCielo;
 
-    // 2. REINCORPORADO: PARTÍCULAS EN SUSPENSIÓN (Chispas o polvo de oro mineral flotante)
+    // 2. REINCORPORADO: PARTÍCULAS EN SUSPENSIÓN (Chispas o polvo de oro)
     const verticesChispas = [];
     for (let i = 0; i < 600; i++) {
         const x = (Math.random() - 0.5) * 60;
@@ -39,14 +40,12 @@ function init()
     }
     const geomChispas = new THREE.BufferGeometry();
     
-    // Inyección de atributos compatible con Three.js antiguo (r108) y moderno
     if (geomChispas.setAttribute) {
         geomChispas.setAttribute('position', new THREE.Float32BufferAttribute(verticesChispas, 3));
     } else if (geomChispas.addAttribute) {
         geomChispas.addAttribute('position', new THREE.BufferAttribute(new Float32Array(verticesChispas), 3));
     }
     
-    // Material del polvo flotante color cobre/oro
     const matChispas = new THREE.PointsMaterial({
         color: 0xe0a96d,
         size: 0.15, 
@@ -62,12 +61,12 @@ function init()
     camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 2000);
     camera.position.set(0, 5, 10);
     
-    // 4. Renderizador optimizado de Alta Exposición (Atributos del Minero)
+    // 4. Renderizador optimizado de Alta Exposición
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.4; // Exposición optimizada para texturas rugosas y oscuras
+    renderer.toneMappingExposure = 1.4; 
     
     if (renderer.outputColorSpace) {
         renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -87,36 +86,30 @@ function init()
     controles.enablePan = true;
     controles.minDistance = 2;
     controles.maxDistance = 150;
-    controles.maxPolarAngle = Math.PI / 2; // Bloquea la cámara para que no atraviese el suelo
+    controles.maxPolarAngle = Math.PI / 2; 
     
     // =================================================================
-    // 6. ILUMINACIÓN MIXTA AVANZADA REFORZADA (Sin errores de Target)
+    // 6. ILUMINACIÓN MIXTA AVANZADA REFORZADA 
     // =================================================================
-    
-    // Luz ambiental base equilibrada para levantar sombras densas
     var ambientLight = new THREE.AmbientLight(0x4a433c, 1.4); 
     scene.add(ambientLight);
     
-    // Luz de hemisferio para simular el rebote lumínico del entorno de la cueva
     var hemisphereLight = new THREE.HemisphereLight(0x3a4b5c, 0x241910, 0.9);
     hemisphereLight.position.set(0, 30, 0);
     scene.add(hemisphereLight);
     
-    // Luz principal/frontal potente y cálida (Simula reflectores mineros)
     var directionalLight = new THREE.DirectionalLight(0xffcc80, 4.5); 
     directionalLight.position.set(15, 25, 20);
     directionalLight.castShadow = true;
     directionalLight.shadow.mapSize.width = 2048; 
     directionalLight.shadow.mapSize.height = 2048;
-    directionalLight.shadow.bias = -0.001; // Evita artefactos extraños en las mallas
+    directionalLight.shadow.bias = -0.001; 
     scene.add(directionalLight);
     
-    // Luz de contra lateral fría (Tono azulado para recortar y definir los bordes de la silueta)
     var directionalLight2 = new THREE.DirectionalLight(0x739cb3, 2.5); 
     directionalLight2.position.set(-20, 15, -15);
     scene.add(directionalLight2);
 
-    // Foco cenital directo (Haz de luz vertical)
     var spotLight = new THREE.SpotLight(0xffe0b2, 5.0);
     spotLight.position.set(0, 40, 5);
     spotLight.angle = Math.PI / 4;
@@ -129,8 +122,9 @@ function init()
     var progressBar = document.getElementById('progress-bar');
     var progressText = document.getElementById('progress-text');
     
-    // 7. Carga del Modelo .GLB del Minero 
     var cargar = new THREE.GLTFLoader();
+
+    // 7. Carga del Modelo .GLB del Minero 
     cargar.load("assets/Minero.glb", 
         function(gltf)
         {
@@ -147,7 +141,7 @@ function init()
                     if(obj.material)
                     {
                         obj.material.needsUpdate = true;
-                        obj.material.roughness = 0.4; // Ajuste óptimo para la respuesta de los brillos
+                        obj.material.roughness = 0.4; 
                         if(obj.material.map)
                         {
                             obj.material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
@@ -157,23 +151,19 @@ function init()
             });
             scene.add(plaza);
             
-            // --- ASIGNACIÓN DE TARGETS DE LUZ POST-CARGA (Previene errores) ---
+            // --- ASIGNACIÓN DE TARGETS DE LUZ POST-CARGA ---
             var box = new THREE.Box3().setFromObject(plaza);
             var center = box.getCenter(new THREE.Vector3());
             var size = box.getSize(new THREE.Vector3());
             
-            // Vinculamos los objetivos de las luces al modelo ya cargado e instanciado
             directionalLight.target = plaza;
             spotLight.target = plaza;
-            
-            // Reubicamos el foco cenital justo encima del centro real de la cabeza de la estatua
             spotLight.position.set(center.x, center.y + size.y * 1.5, center.z + 1);
             
             controles.target.set(center.x, center.y, center.z);
             camera.position.set(center.x, center.y + 4, center.z + 10); 
             controles.update();
             
-            // Apagar barra de carga de forma fluida
             setTimeout(function() {
                 if (loaderContainer) loaderContainer.classList.add('loaded');
             }, 250);
@@ -194,15 +184,81 @@ function init()
             if (progressText) progressText.innerText = "Error de carga";
         }
     );
+
+    // 8. CARGA Y CLONACIÓN DE LOS METEOROS 3D
+    cargar.load("assets/meteoro.glb", function(gltf) {
+        var modeloMeteoro = gltf.scene;
+
+        for (let i = 0; i < 40; i++) {
+            var clon = modeloMeteoro.clone();
+            
+            // Posición aleatoria
+            clon.position.set(
+                (Math.random() - 0.5) * 100,
+                Math.random() * 60 + 10,
+                (Math.random() - 0.5) * 100
+            );
+            
+            // Rotación inicial aleatoria
+            clon.rotation.set(
+                Math.random() * Math.PI,
+                Math.random() * Math.PI,
+                Math.random() * Math.PI
+            );
+            
+            // Escala grande como tenías en el archivo anterior
+            clon.scale.set(4.5, 4.5, 4.5);
+            
+            // Sombras
+            clon.traverse(function(obj) {
+                if(obj.isMesh) {
+                    obj.castShadow = true;
+                    obj.receiveShadow = true;
+                }
+            });
+
+            // Parámetros individuales de caída y rotación
+            clon.userData = {
+                velocidadCaida: Math.random() * 0.15 + 0.05,
+                velRotacionX: (Math.random() - 0.5) * 0.05,
+                velRotacionY: (Math.random() - 0.5) * 0.05,
+                velRotacionZ: (Math.random() - 0.5) * 0.05
+            };
+            
+            scene.add(clon);
+            arrayMeteoros.push(clon);
+        }
+        console.log("Meteoros agregados correctamente al Minero");
+    });
 }
 
-// 8. Ciclo de Animación (Conserva la rotación continua en el eje Y)
+// 9. Ciclo de Animación
 function animate()
 {
     requestAnimationFrame(animate);
     
     if(plaza) {
         plaza.rotation.y += 0.01; // Velocidad de rotación continua del Minero
+    }
+
+    // ANIMACIÓN DE LOS METEOROS 3D
+    for (let i = 0; i < arrayMeteoros.length; i++) {
+        let meteoro = arrayMeteoros[i];
+        
+        // Movimiento de caída
+        meteoro.position.y -= meteoro.userData.velocidadCaida;
+        
+        // Rotaciones en los 3 ejes
+        meteoro.rotation.x += meteoro.userData.velRotacionX;
+        meteoro.rotation.y += meteoro.userData.velRotacionY;
+        meteoro.rotation.z += meteoro.userData.velRotacionZ;
+        
+        // Reaparición en la parte superior cuando caen al fondo
+        if (meteoro.position.y < -15) {
+            meteoro.position.y = 60 + Math.random() * 20;
+            meteoro.position.x = (Math.random() - 0.5) * 100;
+            meteoro.position.z = (Math.random() - 0.5) * 100;
+        }
     }
 
     controles.update();
