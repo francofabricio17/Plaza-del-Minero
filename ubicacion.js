@@ -193,8 +193,8 @@ function init() {
     cargar.load("assets/casco.glb", function(gltf) {
         casco = gltf.scene;
 
-        casco.position.set(-18, -1, 2);
-        casco.scale.set(2.5, 2.5, 2.5);
+        casco.position.set(-18, -0.3, 2);
+        casco.scale.set(3, 3, 3);
         casco.rotation.set(0.5, Math.PI / 4, 0);
 
         casco.traverse(function(obj) {

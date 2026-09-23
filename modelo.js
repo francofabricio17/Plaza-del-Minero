@@ -264,6 +264,7 @@ function init() {
         var obj40 = modeloArbol.clone(); obj40.position.set(-105, 8, 20); scene.add(obj40);
         var obj41 = modeloArbol.clone(); obj41.position.set(-105, 8, -38); scene.add(obj41);
         var obj42 = modeloArbol.clone(); obj42.position.set(-128, 8, -38); scene.add(obj42);
+        var obj43 = modeloArbol.clone(); obj43.position.set(-86, 8, -120); scene.add(obj43);
     });
 
     cargarModeloSeguro("assets/planta.glb", function(modeloPlanta) {
@@ -417,6 +418,7 @@ function init() {
         var obj21 = modeloarbolito2.clone(); obj21.scale.set(2, 2, 2); obj21.position.set(-85, 7.5, 10);  scene.add(obj21);
         var obj22 = modeloarbolito2.clone(); obj22.scale.set(1.8, 1.8, 1.8); obj22.position.set(-68, 7.5, -124);  scene.add(obj22);
         var obj23 = modeloarbolito2.clone(); obj23.scale.set(1.8, 1.8, 1.8); obj23.position.set(-103, 7.5, -122);  scene.add(obj23);
+        var obj24 = modeloarbolito2.clone(); obj24.scale.set(4, 4, 4); obj24.position.set(-140, 7.5, 15);  scene.add(obj24);
     });
 
     cargarModeloSeguro("assets/otroarbolito1.glb", function(modeloarbolito3) {
