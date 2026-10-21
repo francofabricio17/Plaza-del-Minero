@@ -11,6 +11,10 @@ var sound;
 var ambientLight, hemisphereLight, directionalLight, directionalLight2;
 var lucesPostes = [];
 
+// Variables de Postprocesamiento
+var composer, renderPass, outlinePass, filmPass;
+var objetosSeleccionadosOutline = [];
+
 var marcadores = [
     { texto: "Monumento a Irineo Pimentel Rojas", posicion: new THREE.Vector3(-73, 41, 22.5), elemento: null, enlace: "irineo.html" },
     { texto: "Monumento a Federico Escobar", posicion: new THREE.Vector3(-70, 40, 11.5), elemento: null, enlace: "federico.html" },
@@ -80,7 +84,7 @@ function init() {
     });
     
     // ====================================================
-    // RENDERIZADOR Y CONTROLES
+    // RENDERIZADOR Y POSTPROCESAMIENTO
     // ====================================================
     renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -88,10 +92,26 @@ function init() {
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.0; 
     renderer.outputColorSpace = THREE.SRGBColorSpace; 
-    
     renderer.shadowMap.enabled = false;
     document.body.appendChild(renderer.domElement);
     
+    // Configuración del EffectComposer
+    composer = new THREE.EffectComposer(renderer);
+    renderPass = new THREE.RenderPass(scene, camera);
+    composer.addPass(renderPass);
+
+    // OutlinePass para dar brillo de contorno a los monumentos[cite: 3]
+    outlinePass = new THREE.OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), scene, camera, objetosSeleccionadosOutline);
+    outlinePass.edgeStrength = 4.0;   // Intensidad del contorno
+    outlinePass.edgeThickness = 2.5;  // Grosor del contorno
+    outlinePass.visibleEdgeColor.set('#22c55e'); // Color verde brillante principal
+    outlinePass.hiddenEdgeColor.set('#15803d');  // Color secundario oculto
+    composer.addPass(outlinePass);
+
+    // FilmPass (inicialmente desactivado con 0 intensidad hasta que se active la noche)
+    filmPass = new THREE.FilmPass(0.0, 0.5, 648, false);
+    composer.addPass(filmPass);
+
     controles = new THREE.OrbitControls(camera, renderer.domElement);
     controles.enableDamping = true;
     controles.dampingFactor = 0.08;
@@ -120,7 +140,6 @@ function init() {
     directionalLight2.position.set(-30, 20, -30);
     scene.add(directionalLight2);
 
-    // Fondo / Cielo
     const textureLoader = new THREE.TextureLoader(manager);
     textureLoader.load(
         "imagenes/cielo.jpg",
@@ -151,7 +170,6 @@ function init() {
         });
     }
     
-    // 1. Cargar el modelo principal de la plaza
     cargar.load("assets/piso.glb", function(gltf) {
         plaza = gltf.scene;
         plaza.position.set(0, 0, 0);
@@ -183,7 +201,6 @@ function init() {
         console.log("Error cargando piso.glb:", error);
     });
 
-    // Helper para carga de submodelos GLTF
     function cargarModeloSeguro(url, callbackExito) {
         cargar.load(url, function(gltf) {
             callbackExito(gltf.scene);
@@ -192,29 +209,25 @@ function init() {
         });
     }
 
-    // 2. Pedestales y Monumentos
-    cargarModeloSeguro("assets/Pedestalirineo.glb", function(est1) { est1.scale.set(3.5, 3.5, 3.5); est1.position.set(-73, 3.5, 22); scene.add(est1); });
-    cargarModeloSeguro("assets/Pedestalfederico.glb", function(est2) { est2.scale.set(3.5, 3.5, 3.5); est2.position.set(-73, 3.3, 11); scene.add(est2); });
-    cargarModeloSeguro("assets/Pedestalescobar.glb", function(est3) { est3.scale.set(3.5, 3.5, 3.5); est3.position.set(-74, 3.5, -38); scene.add(est3); });
-    cargarModeloSeguro("assets/Palliri.glb", function(est4) { est4.scale.set(4, 4, 4); est4.position.set(-78, 11, -74); est4.rotation.set(0, Math.PI / 2, 0); scene.add(est4); });
-    cargarModeloSeguro("assets/completomina.glb", function(est6) { est6.scale.set(10, 10, 10); est6.position.set(-111.5, 19, -13); est6.rotation.set(0, Math.PI / 2, 0); scene.add(est6); });
+    // 2. Pedestales y Monumentos (Añadidos al OutlinePass para que tengan el contorno verde)
+    cargarModeloSeguro("assets/Pedestalirineo.glb", function(est1) { est1.scale.set(3.5, 3.5, 3.5); est1.position.set(-73, 3.5, 22); scene.add(est1); objetosSeleccionadosOutline.push(est1); });
+    cargarModeloSeguro("assets/Pedestalfederico.glb", function(est2) { est2.scale.set(3.5, 3.5, 3.5); est2.position.set(-73, 3.3, 11); scene.add(est2); objetosSeleccionadosOutline.push(est2); });
+    cargarModeloSeguro("assets/Pedestalescobar.glb", function(est3) { est3.scale.set(3.5, 3.5, 3.5); est3.position.set(-74, 3.5, -38); scene.add(est3); objetosSeleccionadosOutline.push(est3); });
+    cargarModeloSeguro("assets/Palliri.glb", function(est4) { est4.scale.set(4, 4, 4); est4.position.set(-78, 11, -74); est4.rotation.set(0, Math.PI / 2, 0); scene.add(est4); objetosSeleccionadosOutline.push(est4); });
+    cargarModeloSeguro("assets/completomina.glb", function(est6) { est6.scale.set(10, 10, 10); est6.position.set(-111.5, 19, -13); est6.rotation.set(0, Math.PI / 2, 0); scene.add(est6); objetosSeleccionadosOutline.push(est6); });
     
-    // 3. Postes de Alumbrado con Campo de Luz Local e Independiente
+    // 3. Postes de Alumbrado con Campo de Luz Local
     cargarModeloSeguro("assets/poste.glb", function(modeloBase) {
         modeloBase.scale.set(8.5, 8.5, 8.5);
 
-        // Geometría y material de la bombilla (bolita brillante)
         var geometriaEsfera = new THREE.SphereGeometry(0.8, 16, 16);
         var materialEsfera = new THREE.MeshBasicMaterial({ color: 0xfffae6 });
 
         function crearPosteConLuz(x, y, z) {
             var posteClonado = modeloBase.clone();
-            
-            // PointLight con radio de acción corto y controlado (distance: 70, decay: 2.0 para que decaiga rápido)
             var luzFoco = new THREE.PointLight(0xffddaa, 3, 70, 2.0); 
-            luzFoco.position.set(0, 20, 0); // Posición de la lámpara en la punta del poste
+            luzFoco.position.set(0, 20, 0); 
 
-            // Esfera visual brillante simulando la bombilla encendida
             var bolitaLuz = new THREE.Mesh(geometriaEsfera, materialEsfera);
             bolitaLuz.position.set(0, 18, 0);
 
@@ -292,7 +305,7 @@ function init() {
         var pilar21 = modelopilar.clone(); pilar21.position.set(-100.5, 10.5, -4); scene.add(pilar21);
     });
     
-    // 5. Sillas de Goma
+    // Sillas de Goma
     cargarModeloSeguro("assets/sillagoma.glb", function(modeloSilla) {
         modeloSilla.scale.set(6, 6.5, 6);
         var obj14 = modeloSilla.clone(); obj14.position.set(-61.5, 7, 23); obj14.rotation.y = Math.PI; scene.add(obj14);
@@ -303,7 +316,7 @@ function init() {
         var silla6 = modeloSilla.clone(); silla6.position.set(-61.5, 7, -87); silla6.rotation.y = Math.PI; scene.add(silla6);
     });
 
-    // 6. Barandas de la Plaza
+    // Barandas de la Plaza
     cargarModeloSeguro("assets/barandasplaza.glb", function(modeloBaranda) {
         var obj8 = modeloBaranda.clone(); obj8.scale.set(6, 7, 8.5); obj8.position.set(-65, 8.6, 30); obj8.rotation.set(0, Math.PI / 2, 0); scene.add(obj8);
         var obj9 = modeloBaranda.clone(); obj9.scale.set(6, 7, 8.5); obj9.position.set(-96.3, 8.6, 30); obj9.rotation.set(0, Math.PI / 2, 0); scene.add(obj9);
@@ -321,7 +334,6 @@ function init() {
         var obj22 = modeloBaranda.clone(); obj22.scale.set(6, 7, 7.5); obj22.position.set(-150, 13, 2); scene.add(obj22);
         var obj103 = modeloBaranda.clone(); obj103.scale.set(6, 7, 5); obj103.position.set(-150, 13, -26); scene.add(obj103);
 
-        // Agrupación de barandas complejas
         var grupoBarandas = new THREE.Group();
         var obj30 = modeloBaranda.clone(); obj30.scale.set(6, 5.5, 1.6); obj30.position.set(-65, 8.6, -57); obj30.rotation.set(0, Math.PI / 2, 0); grupoBarandas.add(obj30);
         var obj31 = modeloBaranda.clone(); obj31.scale.set(6, 5.5, 1.5); obj31.position.set(-71, 8.6, -57); grupoBarandas.add(obj31);
@@ -353,7 +365,6 @@ function init() {
         var obj57 = modeloBaranda.clone(); obj57.scale.set(6, 5.5, 1.8); obj57.position.set(-101, 8.6, -90.5); obj57.rotation.set(0, Math.PI / 2, 0); grupoBarandas.add(obj57);
         scene.add(grupoBarandas);
 
-        // Copia trasladada del grupo de barandas
         var grupoBarandasCopia1 = new THREE.Group();
         var c1_30 = modeloBaranda.clone(); c1_30.scale.set(6, 5.5, 1.6); c1_30.position.set(-65, 8.6, -57); c1_30.rotation.set(0, Math.PI / 2, 0); grupoBarandasCopia1.add(c1_30);
         var c1_31 = modeloBaranda.clone(); c1_31.scale.set(6, 5.5, 1.5); c1_31.position.set(-71, 8.6, -57); grupoBarandasCopia1.add(c1_31);
@@ -388,7 +399,7 @@ function init() {
         scene.add(grupoBarandasCopia1);
     });
 
-    // 7. Vegetación Adicional
+    // Vegetación Adicional
     cargarModeloSeguro("assets/planta1.glb", function(modeloplanta1) {
         var obj18 = modeloplanta1.clone(); obj18.scale.set(7, 7, 7); obj18.position.set(-83, 7.5, -70);  scene.add(obj18);
         var obj19 = modeloplanta1.clone(); obj19.scale.set(7, 7, 7); obj19.position.set(-105, 7.5, -70);  scene.add(obj19);
@@ -437,7 +448,7 @@ function init() {
         var pilar25 = modeloarbol1.clone(); pilar25.position.set(-121, 5, -120); scene.add(pilar25);
     });
 
-    // 8. Elementos Urbanos y Estructuras
+    // Elementos Urbanos
     cargarModeloSeguro("assets/fuente.glb", function(modelofuente) {
         modelofuente.scale.set(15, 15, 15);
         var pilar22 = modelofuente.clone(); pilar22.position.set(-114, 7, -104); pilar22.rotation.y = Math.PI / 2; scene.add(pilar22);
@@ -507,13 +518,15 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    if (composer) {
+        composer.setSize(window.innerWidth, window.innerHeight);
+    }
 }
 
 function animate() {
     requestAnimationFrame(animate);
     if (controles) controles.update();
     
-    // Proyección de marcadores 3D a coordenadas HTML 2D
     marcadores.forEach(function(marcador) {
         if (marcador.elemento && camera) {
             var vec = marcador.posicion.clone();
@@ -530,13 +543,13 @@ function animate() {
         }
     });
 
-    if (renderer && scene && camera) {
-        renderer.render(scene, camera);
+    if (composer) {
+        composer.render();
     }
 }
 
 // ====================================================
-// CONTROL DE CLIMA Y ATMÓSFERA
+// CONTROL DE CLIMA Y ATMÓSFERA (CON FILM PASS DINÁMICO)
 // ====================================================
 
 window.cambiarAtmosfera = function(modo) {
@@ -556,16 +569,26 @@ window.cambiarAtmosfera = function(modo) {
         
         lucesPostes.forEach(function(luz) { luz.intensity = 0; });
         
+        // Desactivar efecto FilmPass en el día
+        if (filmPass) filmPass.uniforms["grayscale"].value = 0; // Ocultar ruido/efecto
+        if (composer) {
+            // Quitamos temporalmente el pass de film si prefieres que no esté activo
+            filmPass.enabled = false;
+        }
+        
     } else if (modo === 'atardecer' || modo === 'tarde') {
         texturaRuta = "imagenes/atardecer.jpg"; 
         directionalLight.color.setHex(0xff7722);
-        directionalLight.intensity = 0.6; // Reducido para que no sature la luz general en el atardecer
+        directionalLight.intensity = 0.6; 
         hemisphereLight.color.setHex(0xff9944);
         hemisphereLight.groundColor.setHex(0x3a1e12);
         ambientLight.color.setHex(0xff6622);
         ambientLight.intensity = 0.3;
         
-        lucesPostes.forEach(function(luz) { luz.intensity = 2.0; }); // Intensidad moderada por cada poste
+        lucesPostes.forEach(function(luz) { luz.intensity = 2.0; }); 
+        
+        // Desactivar efecto FilmPass en la tarde
+        if (filmPass) filmPass.enabled = false;
         
     } else if (modo === 'noche' || modo === 'nublado') {
         texturaRuta = "imagenes/noche.png";
@@ -577,6 +600,13 @@ window.cambiarAtmosfera = function(modo) {
         ambientLight.intensity = 0.1;
         
         lucesPostes.forEach(function(luz) { luz.intensity = 3.5; });
+        
+        // ¡ACTIVAR FILM PASS EN LA NOCHE!
+        if (filmPass) {
+            filmPass.enabled = true;
+            filmPass.uniforms["nIntensity"].value = 0.65; // Intensidad del ruido estilo cine
+            filmPass.uniforms["sIntensity"].value = 0.45; // Intensidad de las líneas de escaneo
+        }
         
     } else {
         console.warn("Modo no reconocido:", modo);
