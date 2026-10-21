@@ -11,6 +11,13 @@ var sound;
 var ambientLight, hemisphereLight, directionalLight, directionalLight2;
 var lucesPostes = [];
 
+// Reloj para controlar el parpadeo suave
+var clock = new THREE.Clock();
+
+// Variables para Postprocessing
+var composer, renderPass, outlinePass, filmPass;
+var objetosSeleccionadosOutline = [];
+
 var marcadores = [
     { texto: "Monumento a Irineo Pimentel Rojas", posicion: new THREE.Vector3(-73, 41, 22.5), elemento: null, enlace: "irineo.html" },
     { texto: "Monumento a Federico Escobar", posicion: new THREE.Vector3(-70, 40, 11.5), elemento: null, enlace: "federico.html" },
@@ -80,11 +87,11 @@ function init() {
     });
     
     // ====================================================
-    // RENDERIZADOR Y CONTROLES
+    // RENDERIZADOR, CONTROLES Y POSTPROCESSING
     // ====================================================
     renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(1); 
+    renderer.setPixelRatio(window.devicePixelRatio); 
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.0; 
     renderer.outputColorSpace = THREE.SRGBColorSpace; 
@@ -92,6 +99,26 @@ function init() {
     renderer.shadowMap.enabled = false;
     document.body.appendChild(renderer.domElement);
     
+    // --- Configuración de EffectComposer ---
+    composer = new THREE.EffectComposer(renderer);
+    renderPass = new THREE.RenderPass(scene, camera);
+    composer.addPass(renderPass);
+
+    // 1. OutlinePass (Tono Bronce / Mineral Antiguo, sutil y no chillón)
+    outlinePass = new THREE.OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), scene, camera);
+    outlinePass.visibleEdgeColor.set(0xd48837); // Tono Bronce / Cobre apagado
+    outlinePass.hiddenEdgeColor.set(0x8c5319);  // Sombra Bronce oscuro
+    outlinePass.edgeStrength = 3.5;              
+    outlinePass.edgeGlow = 0.5;                  
+    outlinePass.edgeThickness = 2.0;             
+    composer.addPass(outlinePass);
+
+    // 2. FilmPass (Efecto de grano/película más notorio e intenso)
+    // Parámetros: (noiseIntensity, scanlinesIntensity, scanlinesCount, grayscale)
+    filmPass = new THREE.FilmPass(0.65, 0.08, 648, false);
+    filmPass.enabled = false; // Desactivado por defecto (Día)
+    composer.addPass(filmPass);
+
     controles = new THREE.OrbitControls(camera, renderer.domElement);
     controles.enableDamping = true;
     controles.dampingFactor = 0.08;
@@ -183,7 +210,7 @@ function init() {
         console.log("Error cargando piso.glb:", error);
     });
 
-    // Helper para carga de submodelos GLTF
+    // Helper para carga de submodelos GLTF y helper de Outline
     function cargarModeloSeguro(url, callbackExito) {
         cargar.load(url, function(gltf) {
             callbackExito(gltf.scene);
@@ -192,29 +219,50 @@ function init() {
         });
     }
 
-    // 2. Pedestales y Monumentos
-    cargarModeloSeguro("assets/Pedestalirineo.glb", function(est1) { est1.scale.set(3.5, 3.5, 3.5); est1.position.set(-73, 3.5, 22); scene.add(est1); });
-    cargarModeloSeguro("assets/Pedestalfederico.glb", function(est2) { est2.scale.set(3.5, 3.5, 3.5); est2.position.set(-73, 3.3, 11); scene.add(est2); });
-    cargarModeloSeguro("assets/Pedestalescobar.glb", function(est3) { est3.scale.set(3.5, 3.5, 3.5); est3.position.set(-74, 3.5, -38); scene.add(est3); });
-    cargarModeloSeguro("assets/Palliri.glb", function(est4) { est4.scale.set(4, 4, 4); est4.position.set(-78, 11, -74); est4.rotation.set(0, Math.PI / 2, 0); scene.add(est4); });
-    cargarModeloSeguro("assets/completomina.glb", function(est6) { est6.scale.set(10, 10, 10); est6.position.set(-111.5, 19, -13); est6.rotation.set(0, Math.PI / 2, 0); scene.add(est6); });
+    function agregarAOutline(objeto) {
+        objeto.traverse(function(child) {
+            if (child.isMesh) {
+                objetosSeleccionadosOutline.push(child);
+            }
+        });
+        outlinePass.selectedObjects = objetosSeleccionadosOutline;
+    }
+
+    // 2. Pedestales y Monumentos (Todos los monumentos incluidos con Outline de Bronce)
+    cargarModeloSeguro("assets/Pedestalirineo.glb", function(est1) { 
+        est1.scale.set(3.5, 3.5, 3.5); est1.position.set(-73, 3.5, 22); scene.add(est1); 
+        agregarAOutline(est1); 
+    });
+    cargarModeloSeguro("assets/Pedestalfederico.glb", function(est2) { 
+        est2.scale.set(3.5, 3.5, 3.5); est2.position.set(-73, 3.3, 11); scene.add(est2); 
+        agregarAOutline(est2); 
+    });
+    cargarModeloSeguro("assets/Pedestalescobar.glb", function(est3) { 
+        est3.scale.set(3.5, 3.5, 3.5); est3.position.set(-74, 3.5, -38); scene.add(est3); 
+        agregarAOutline(est3); 
+    });
+    cargarModeloSeguro("assets/Palliri.glb", function(est4) { 
+        est4.scale.set(4, 4, 4); est4.position.set(-78, 11, -74); est4.rotation.set(0, Math.PI / 2, 0); scene.add(est4); 
+        agregarAOutline(est4); 
+    });
+    cargarModeloSeguro("assets/completomina.glb", function(est6) { 
+        est6.scale.set(10, 10, 10); est6.position.set(-111.5, 19, -13); est6.rotation.set(0, Math.PI / 2, 0); scene.add(est6); 
+        agregarAOutline(est6); 
+    });
     
     // 3. Postes de Alumbrado con Campo de Luz Local e Independiente
     cargarModeloSeguro("assets/poste.glb", function(modeloBase) {
         modeloBase.scale.set(8.5, 8.5, 8.5);
 
-        // Geometría y material de la bombilla (bolita brillante)
         var geometriaEsfera = new THREE.SphereGeometry(0.8, 16, 16);
         var materialEsfera = new THREE.MeshBasicMaterial({ color: 0xfffae6 });
 
         function crearPosteConLuz(x, y, z) {
             var posteClonado = modeloBase.clone();
             
-            // PointLight con radio de acción corto y controlado (distance: 70, decay: 2.0 para que decaiga rápido)
             var luzFoco = new THREE.PointLight(0xffddaa, 3, 70, 2.0); 
-            luzFoco.position.set(0, 20, 0); // Posición de la lámpara en la punta del poste
+            luzFoco.position.set(0, 20, 0); 
 
-            // Esfera visual brillante simulando la bombilla encendida
             var bolitaLuz = new THREE.Mesh(geometriaEsfera, materialEsfera);
             bolitaLuz.position.set(0, 18, 0);
 
@@ -321,7 +369,6 @@ function init() {
         var obj22 = modeloBaranda.clone(); obj22.scale.set(6, 7, 7.5); obj22.position.set(-150, 13, 2); scene.add(obj22);
         var obj103 = modeloBaranda.clone(); obj103.scale.set(6, 7, 5); obj103.position.set(-150, 13, -26); scene.add(obj103);
 
-        // Agrupación de barandas complejas
         var grupoBarandas = new THREE.Group();
         var obj30 = modeloBaranda.clone(); obj30.scale.set(6, 5.5, 1.6); obj30.position.set(-65, 8.6, -57); obj30.rotation.set(0, Math.PI / 2, 0); grupoBarandas.add(obj30);
         var obj31 = modeloBaranda.clone(); obj31.scale.set(6, 5.5, 1.5); obj31.position.set(-71, 8.6, -57); grupoBarandas.add(obj31);
@@ -353,7 +400,6 @@ function init() {
         var obj57 = modeloBaranda.clone(); obj57.scale.set(6, 5.5, 1.8); obj57.position.set(-101, 8.6, -90.5); obj57.rotation.set(0, Math.PI / 2, 0); grupoBarandas.add(obj57);
         scene.add(grupoBarandas);
 
-        // Copia trasladada del grupo de barandas
         var grupoBarandasCopia1 = new THREE.Group();
         var c1_30 = modeloBaranda.clone(); c1_30.scale.set(6, 5.5, 1.6); c1_30.position.set(-65, 8.6, -57); c1_30.rotation.set(0, Math.PI / 2, 0); grupoBarandasCopia1.add(c1_30);
         var c1_31 = modeloBaranda.clone(); c1_31.scale.set(6, 5.5, 1.5); c1_31.position.set(-71, 8.6, -57); grupoBarandasCopia1.add(c1_31);
@@ -507,12 +553,20 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    if (composer) composer.setSize(window.innerWidth, window.innerHeight);
 }
 
 function animate() {
     requestAnimationFrame(animate);
     if (controles) controles.update();
     
+    // Parpadeo y titileo suave del contorno tipo bronce mineral
+    if (outlinePass) {
+        var elapsedTime = clock.getElapsedTime();
+        outlinePass.edgeStrength = 2.0 + Math.sin(elapsedTime * 4.0) * 1.8;
+        outlinePass.edgeGlow = 0.4 + Math.sin(elapsedTime * 4.0) * 0.35;
+    }
+
     // Proyección de marcadores 3D a coordenadas HTML 2D
     marcadores.forEach(function(marcador) {
         if (marcador.elemento && camera) {
@@ -530,8 +584,8 @@ function animate() {
         }
     });
 
-    if (renderer && scene && camera) {
-        renderer.render(scene, camera);
+    if (composer && scene && camera) {
+        composer.render();
     }
 }
 
@@ -555,17 +609,23 @@ window.cambiarAtmosfera = function(modo) {
         ambientLight.intensity = 0.35;
         
         lucesPostes.forEach(function(luz) { luz.intensity = 0; });
+
+        // Desactivar FilmPass de día
+        if (filmPass) filmPass.enabled = false;
         
     } else if (modo === 'atardecer' || modo === 'tarde') {
         texturaRuta = "imagenes/atardecer.jpg"; 
         directionalLight.color.setHex(0xff7722);
-        directionalLight.intensity = 0.6; // Reducido para que no sature la luz general en el atardecer
+        directionalLight.intensity = 0.6;
         hemisphereLight.color.setHex(0xff9944);
         hemisphereLight.groundColor.setHex(0x3a1e12);
         ambientLight.color.setHex(0xff6622);
         ambientLight.intensity = 0.3;
         
-        lucesPostes.forEach(function(luz) { luz.intensity = 2.0; }); // Intensidad moderada por cada poste
+        lucesPostes.forEach(function(luz) { luz.intensity = 2.0; });
+        
+        // Activar FilmPass al anochecer
+        if (filmPass) filmPass.enabled = true;
         
     } else if (modo === 'noche' || modo === 'nublado') {
         texturaRuta = "imagenes/noche.png";
@@ -577,6 +637,9 @@ window.cambiarAtmosfera = function(modo) {
         ambientLight.intensity = 0.1;
         
         lucesPostes.forEach(function(luz) { luz.intensity = 3.5; });
+        
+        // Activar FilmPass de noche
+        if (filmPass) filmPass.enabled = true;
         
     } else {
         console.warn("Modo no reconocido:", modo);
