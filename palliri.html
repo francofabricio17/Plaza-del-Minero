@@ -10,7 +10,9 @@
     <link rel="stylesheet" href="palliri.css">
 </head>
 <body>
-
+    <!-- Fondo dinámico y luces -->
+    <div class="fondo-galeria"></div>
+    <div class="luces-overlay"></div>
     <div id="loader-container">
         <div class="loader-content">
             <div class="loader-brand">POTOSÍ - LLALLAGUA - SIGLO XX</div>
@@ -21,44 +23,123 @@
             <div id="progress-text">0%</div>
         </div>
     </div>
-
+    <!-- Indicador flotante de rotación 3D en la parte inferior -->
+    <div id="aviso-rotacion">
+        <span>✋ Arrastra para mover y rotar en 3D</span>
+    </div>
+    <!-- PANEL IZQUIERDO: Títulos, Tarjeta Vertical Alargada Interactiva y Audio -->
     <div class="main-titulo-izquierdo">
         <h1 class="texto-region">Potosí - Llallagua - Siglo XX</h1>
         <h2 class="texto-monumento">Monumento <span>a las Palliris</span></h2>
-        <div class="foto-contexto-container">
-            <img src="imagenes/MonumentoPalliri.jpg" alt="Fotografía histórica del monumento" class="foto-contexto">
+        <!-- Tarjeta de Imagen Vertical Interactiva (Alterna entre Imagen 1 y Imagen 2) -->
+        <div class="foto-contexto-container" id="tarjeta-imagen" onclick="alternarImagen()">
+            <img src="imagenes/MonumentoPalliri.jpg" alt="Fotografía del monumento a las Palliris" class="foto-contexto" id="img-interactiva">
+            <div class="foto-overlay-badge" id="badge-imagen">
+                <span class="icono-interaccion">🔄</span> <span>Haz clic para ver foto histórica real</span>
+            </div>
+        </div>
+        <p class="cita-pie-foto" id="texto-cita-foto">📸 <strong>Imagen 1 (Monumento 3D):</strong> Elaboración propia / Registro 3D local. Fuente periodística: Choque Tapia, Paola. "Palliris de Llallagua, sobrevivencia en medio del olvido"[cite: 5].</p>
+        <!-- Bloque de Audio con Autoplay y Desbloqueo por Interacción -->
+        <div class="bloque-audio-narracion">
+            <span class="titulo-audio">🎙️ Relato histórico y música ambiental:</span>
+            <audio controls id="reproductor-historia" preload="auto">
+                <source src="assets/palliri.mp3" type="audio/mpeg">
+                Tu navegador no soporta la reproducción de audio.
+            </audio>
+            <p class="cita-pie-audio">🎵 <em>Relato basado en la investigación de Paola Choque Tapia sobre las mujeres mineras de Llallagua[cite: 5].</em></p>
         </div>
     </div>
 
+    <!-- PANEL DERECHO: Información Histórica y Realidad de las Palliris -->
     <div id="info-sidebar">
         <div class="sidebar-scrollable">
             <section class="info-bloque">
-                <h2>Historia</h2>
-                <p>Estatua erigida en homenaje a la mujer palliri en la comunidad minera de Siglo XX. Esta obra busca visibilizar y reconocer el trabajo histórico y sacrificado de las mujeres mineras en los centros de explotación estañífera.</p>
+                <h2>Sobrevivencia en el Olvido</h2>
+                <p>Las palliris son mujeres mineras que trabajan incansablemente en las inmediaciones de los centros mineros de Siglo XX, recolectando y seleccionando los restos de mineral de los desmontes[cite: 5]. Muchas de ellas asumieron esta dura labor tras perder a sus esposos o hijos a causa de la silicosis, el trágico "mal de la mina"[cite: 5].</p>
+                <p class="fuente-cita">Fuente: Choque Tapia, Paola. <em>Palliris de Llallagua, sobrevivencia en medio del olvido</em>[cite: 5].</p>
+            </section>
+            <section class="info-bloque">
+                <h2>El Significado del Trabajo</h2>
+                <p>El término "palliri" proviene del vocablo quechua <em>pallay</em>, que significa "recoger"[cite: 5]. Con jornadas de hasta catorce horas diarias, golpeando las rocas con el combazo y soportando el frío seco del altiplano, estas valientes mujeres se convirtieron en el único pilar y sustento económico de sus hogares[cite: 5].</p>
+                <p class="fuente-cita">Fuente: Investigación de la Fundación Para el Periodismo (FPP)[cite: 5].</p>
             </section>
 
             <section class="info-bloque">
-                <h2>Significado</h2>
-                <p>Rinde homenaje a las palliris, mujeres que trabajan de manera artesanal seleccionando los minerales de los desmontes o escombros de las minas. Representa la resistencia, el esfuerzo y la lucha diaria de las mujeres dentro de la dura realidad minera boliviana, muchas veces relegada de los relatos oficiales.</p>
+                <h2>Lucha y Resistencia</h2>
+                <p>A pesar de que el departamento de Potosí genera miles de millones de dólares en exportaciones mineras, la bonanza económica rara vez llega a sus manos[cite: 5]. Enfrentan una profunda precariedad laboral, falta de seguridad industrial y barreras en el acceso a la salud[cite: 5].</p>
+                <p class="fuente-cita">Fuente: Reportaje especial / Revista Así[cite: 5].</p>
+            </section>
+
+            <section class="info-bloque">
+                <h2>Relación con la Plaza del Minero</h2>
+                <p>Este monumento erigido en el municipio de Llallagua rinde homenaje perpetuo a su sacrificio y coraje. Consagra a las palliris como el símbolo supremo de resistencia, dignidad y alma de la mujer minera boliviana[cite: 5].</p>
+                <p class="fuente-cita">Fuente: Contexto patrimonial e histórico regional.</p>
             </section>
 
             <section class="info-bloque fichatecnica">
-                <h2>Ficha Técnica</h2>
-                <p><strong>Material base:</strong> Cemento modelado</p>
-                <p><strong>Año de registro:</strong> 2021</p>
-                <p><strong>Ubicación:</strong> Comunidad minera Siglo XX, Llallagua</p>
+                <h2>Ficha Técnica e Histórica</h2>
+                <p><strong>Ubicación:</strong> Plaza del Minero, Siglo XX, Llallagua, Potosí.</p>
+                <p><strong>Material base:</strong> Cemento modelado y estructurado.</p>
             </section>
         </div>
-        <button class="action-button-back"
-        onclick="window.location.href='index.html'">
-    Volver al Modelo 3D
-</button>
- </div>
+        <button class="action-button-back" onclick="window.location.href='index.html'">
+            Volver al Modelo 3D
+        </button>
+    </div>
 
+    <!-- Script de Interactividad (Alternancia de imágenes) y Autoplay de Audio -->
+    <script>
+          let mostrandoReal = false;
+
+        function alternarImagen() {
+            const img = document.getElementById('img-interactiva');
+            const badge = document.getElementById('badge-imagen');
+            const cita = document.getElementById('texto-cita-foto');
+
+            if (!mostrandoReal) {
+                // Imagen 2: Archivo histórico externo
+                img.src = 'assets/pal.png';
+                badge.innerHTML = '<span class="icono-interaccion">🔄</span> <span>Haz clic para ver modelo 3D (Elaboración propia)</span>';
+                cita.innerText = '📸 Imagen 2 (Archivo Fotográfico Periodístico): Mujeres palliris trabajando en los desmontes de Siglo XX. Fuente: Reportaje de Paola Choque Tapia[cite: 5].';
+                mostrandoReal = true;
+            } else {
+                // Imagen 1: Captura del modelo 3D propio
+                img.src = 'imagenes/MonumentoPalliri.jpg';
+                badge.innerHTML = '<span class="icono-interaccion">🔄</span> <span>Haz clic para ver foto histórica real</span>';
+                cita.innerText = '📸 Imagen 1 (Monumento 3D): Elaboración propia / Registro 3D local. Fuente biográfica: Oporto Ordóñez, Luis. "Trayectoria sindical y política de Irineo Pimentel Rojas". Historias de Bolivia.';
+                mostrandoReal = false;
+            }
+        }
+        // Sistema para forzar la reproducción de audio al ingresar o con el primer gesto del usuario
+        window.addEventListener('DOMContentLoaded', () => {
+            const reproductor = document.getElementById('reproductor-historia');
+            reproductor.volume = 0.85;
+            let promesaPlay = reproductor.play();
+            if (promesaPlay !== undefined) {
+                promesaPlay.catch(() => {
+                    const iniciarAudioInvisible = () => {
+                        reproductor.play().catch(e => console.log("Audio iniciado tras interacción.", e));
+                        window.removeEventListener('click', iniciarAudioInvisible);
+                        window.removeEventListener('touchstart', iniciarAudioInvisible);
+                        window.removeEventListener('keydown', iniciarAudioInvisible);
+                    };
+
+                    window.addEventListener('click', iniciarAudioInvisible, { once: true });
+                    window.addEventListener('touchstart', iniciarAudioInvisible, { once: true });
+                    window.addEventListener('keydown', iniciarAudioInvisible, { once: true });
+                });
+            }
+        });
+    </script>
+    <!-- LIBRERÍAS THREE.JS Y SCRIPTS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/108/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/controls/OrbitControls.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/postprocessing/OutlinePass.js"></script>
     <script src="palliri.js"></script>
 </body>
 </html>

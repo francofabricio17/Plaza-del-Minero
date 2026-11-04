@@ -11,6 +11,10 @@
 </head>
 <body>
 
+    <!-- Fondo dinámico y luces -->
+    <div class="fondo-galeria"></div>
+    <div class="luces-overlay"></div>
+
     <div id="loader-container">
         <div class="loader-content">
             <div class="loader-brand">POTOSÍ - LLALLAGUA - SIGLO XX</div>
@@ -22,43 +26,131 @@
         </div>
     </div>
 
+    <!-- Indicador flotante de rotación 3D en la parte inferior -->
+    <div id="aviso-rotacion">
+        <span>✋ Arrastra para mover y rotar en 3D</span>
+    </div>
+
+    <!-- PANEL IZQUIERDO: Títulos, Tarjeta Vertical Alargada Interactiva y Audio -->
     <div class="main-titulo-izquierdo">
         <h1 class="texto-region">Potosí - Llallagua - Siglo XX</h1>
         <h2 class="texto-monumento">Monumento <span>al Minero</span></h2>
-        <div class="foto-contexto-container">
-            <img src="imagenes/MonumentoMinero.jpeg" alt="Fotografía histórica del monumento" class="foto-contexto">
+        
+        <!-- Tarjeta de Imagen Vertical Interactiva (Alterna entre Imagen 1 y Imagen 2) -->
+        <div class="foto-contexto-container" id="tarjeta-imagen" onclick="alternarImagen()">
+            <img src="imagenes/MonumentoMinero.jpeg" alt="Fotografía del monumento al minero" class="foto-contexto" id="img-interactiva">
+            <div class="foto-overlay-badge" id="badge-imagen">
+                <span class="icono-interaccion">🔄</span> <span>Haz clic para ver foto histórica real</span>
+            </div>
+        </div>
+        <p class="cita-pie-foto" id="texto-cita-foto">📸 <strong>Imagen 1 (Monumento 3D):</strong> Elaboración propia / Registro 3D local. Fuente histórica: Víctor Montoya, "El Monumento al Minero tiene nombre y apellido". <em>Semanario Aquí</em>.</p>
+
+        <!-- Bloque de Audio con Autoplay y Desbloqueo por Interacción -->
+        <div class="bloque-audio-narracion">
+            <span class="titulo-audio">🎙️ Relato histórico y música ambiental:</span>
+            <audio controls id="reproductor-historia" preload="auto">
+                <source src="assets/minero.mp3" type="audio/mpeg">
+                Tu navegador no soporta la reproducción de audio.
+            </audio>
+            <p class="cita-pie-audio">🎵 <em>Relato basado en la investigación de Víctor Montoya sobre Félix Trujillo Omonte y la Plaza del Minero.</em></p>
         </div>
     </div>
 
+    <!-- PANEL DERECHO: Información Histórica y el Modelo Félix Trujillo -->
     <div id="info-sidebar">
         <div class="sidebar-scrollable">
             <section class="info-bloque">
-                <h2>Historia</h2>
-                <p>Levantado en memoria del coraje y sacrificio de los trabajadores del subsuelo de las minas Catavi y Siglo XX. Este monumento rinde tributo a las familias mineras que sostuvieron la economía del país y lideraron las vanguardias sindicales e históricas de Bolivia.</p>
+                <h2>El Rostro Detrás del Bronce</h2>
+                <p>El proyecto de erigir un monumento en la Plaza del Minero se aprobó en 1953 con Gabriel Porcel y se concluyó bajo la gestión de Irineo Pimentel en 1954. La obra fue encomendada al escultor chuquisaqueño Víctor Hugo Barrenechea, quien eligió como modelo al perforista de interior mina <strong>Félix Trujillo Omonte</strong> debido a su contextura y su rostro de k’achamozo.</p>
+                <p class="fuente-cita">Fuente: Montoya, Víctor. <em>El Monumento al Minero tiene nombre y apellido</em>.</p>
             </section>
 
             <section class="info-bloque">
-                <h2>Significado</h2>
-                <p>La figura representa la dignidad obrera, el esfuerzo físico imponente y el espíritu inquebrantable del minero boliviano que perfora la roca enfrentando la oscuridad para extraer la riqueza mineral.</p>
+                <h2>Identidad y Contrato de Trabajo</h2>
+                <p>Félix Trujillo Omonte nació en Quillacollo, Cochabamba, el 27 de febrero de 1925. Ingresó a Patiño Mines el 27 de febrero de 1942 con la Ficha N° 5008 y el Archivo N° 50879. Trabajó como jornalero, enmaderador, carrero y cabecilla perforista en las secciones La Blanca, La Salvadora y Laguna.</p>
+                <p class="fuente-cita">Fuente: Expediente personal y contratos de Patiño Mines.</p>
+            </section>
+
+            <section class="info-bloque">
+                <h2>Vaciado en Bronce y Descubrimiento</h2>
+                <p>La maqueta de 70 cm fue aprobada por el dirigente sindical Irineo Pimentel Rojas y procesada en los hornos de la fundición de Catavi. El monumento de 2.5 metros de altura en bronce, junto al fusil y la perforadora, fue descubierto oficialmente el 21 de diciembre de 1954 en honor al Día del Minero Boliviano.</p>
+                <p class="fuente-cita">Fuente: Archivo Histórico del Movimiento Obrero.</p>
+            </section>
+
+            <section class="info-bloque">
+                <h2>Trágico Final del Modelo</h2>
+                <p>Félix Trujillo Omonte falleció el 15 de julio de 1963 a los 38 años en el Hospital Obrero de Catavi, víctima de la fibrosis nodular (silicosis o "mal de mina"). Acabó sus días con los pulmones destrozados tras años de entrega en los socavones, dejando un legado imborrable en la Plaza del Minero de Siglo XX.</p>
+                <p class="fuente-cita">Fuente: Certificado médico de la Empresa Minera Catavi.</p>
             </section>
 
             <section class="info-bloque fichatecnica">
-                <h2>Ficha Técnica</h2>
-                <p><strong>Material base:</strong> Bronce y base de Piedra tallada</p>
-                <p><strong>Año de instalación:</strong> Siglo XX</p>
-                <p><strong>Ubicación:</strong> Plaza del Minero, Llallagua</p>
+                <h2>Ficha Técnica e Histórica</h2>
+                <p><strong>Ubicación:</strong> Plaza del Minero, Siglo XX, Llallagua, Potosí.</p>
+                <p><strong>Escultor:</strong> Víctor Hugo Barrenechea | <strong>Modelo:</strong> Félix Trujillo Omonte.</p>
             </section>
         </div>
-        <button class="action-button-back"
-        onclick="window.location.href='index.html'">
-    Volver al Modelo 3D
-</button>
+        <button class="action-button-back" onclick="window.location.href='index.html'">
+            Volver al Modelo 3D
+        </button>
     </div>
 
+    <!-- Script de Interactividad (Alternancia de imágenes) y Autoplay de Audio -->
+    <script>
+        let mostrandoReal = false;
+
+        function alternarImagen() {
+            const img = document.getElementById('img-interactiva');
+            const badge = document.getElementById('badge-imagen');
+            const cita = document.getElementById('texto-cita-foto');
+
+            if (!mostrandoReal) {
+                // Imagen 2: Fotografía histórica real recopilada de Facebook (Pablo Díaz T.)
+                img.src = 'assets/mine.png'; 
+                badge.innerHTML = '<span class="icono-interaccion">🔄</span> <span>Haz clic para ver modelo 3D (Elaboración propia)</span>';
+                cita.innerText = '📸 Imagen 2 (Fotografía Histórica Real): Monumento al Minero en Siglo XX. Recopilado del archivo de Pablo Díaz T. (Facebook).';
+                mostrandoReal = true;
+            } else {
+                // Imagen 1: Fotografía propia del modelo 3D
+                img.src = 'imagenes/MonumentoMinero.jpeg';
+                badge.innerHTML = '<span class="icono-interaccion">🔄</span> <span>Haz clic para ver foto histórica real</span>';
+                cita.innerText = '📸 Imagen 1 (Monumento 3D): Elaboración propia / Registro 3D local. Fuente histórica: Víctor Montoya, "El Monumento al Minero tiene nombre y apellido". Semanario Aquí.';
+                mostrandoReal = false;
+            }
+        }
+
+        // Sistema para forzar la reproducción de audio al ingresar o con el primer gesto
+        window.addEventListener('DOMContentLoaded', () => {
+            const reproductor = document.getElementById('reproductor-historia');
+            reproductor.volume = 0.85;
+
+            let promesaPlay = reproductor.play();
+            if (promesaPlay !== undefined) {
+                promesaPlay.catch(() => {
+                    const iniciarAudioInvisible = () => {
+                        reproductor.play().catch(e => console.log("Audio iniciado tras interacción.", e));
+                        window.removeEventListener('click', iniciarAudioInvisible);
+                        window.removeEventListener('touchstart', iniciarAudioInvisible);
+                        window.removeEventListener('keydown', iniciarAudioInvisible);
+                    };
+
+                    window.addEventListener('click', iniciarAudioInvisible, { once: true });
+                    window.addEventListener('touchstart', iniciarAudioInvisible, { once: true });
+                    window.addEventListener('keydown', iniciarAudioInvisible, { once: true });
+                });
+            }
+        });
+    </script>
+
+    <!-- LIBRERÍAS THREE.JS Y SCRIPTS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/108/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/controls/OrbitControls.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/postprocessing/OutlinePass.js"></script>
+
     <script src="minero.js"></script>
 </body>
 </html>

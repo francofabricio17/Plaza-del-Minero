@@ -11,6 +11,10 @@
 </head>
 <body>
 
+    <!-- Fondo dinámico con la imagen de fondo -->
+    <div class="fondo-galeria"></div>
+    <div class="luces-overlay"></div>
+
     <div id="loader-container">
         <div class="loader-content">
             <div class="loader-brand">POTOSÍ - LLALLAGUA - SIGLO XX</div>
@@ -22,42 +26,131 @@
         </div>
     </div>
 
+    <!-- Indicador flotante de rotación 3D en la parte inferior -->
+    <div id="aviso-rotacion">
+        <span>✋ Arrastra para mover y rotar en 3D</span>
+    </div>
+
+    <!-- PANEL IZQUIERDO: Títulos, Tarjeta Vertical Alargada, Cambio de Foto y Audio -->
     <div class="main-titulo-izquierdo">
         <h1 class="texto-region">Potosí - Llallagua - Siglo XX</h1>
-        <h2 class="texto-monumento">Monumento <span>a Irineo</span><span>Pimentel</span><span>Rojas</span></h2>
-            <div class="foto-contexto-container">
-               <img src="imagenes/irineo.jpg" alt="Fotografía histórica del monumento" class="foto-contexto">
+        <h2 class="texto-monumento">Monumento <span>a Irineo Pimentel</span></h2>
+        
+        <!-- Tarjeta de Imagen Vertical Alargada Interactiva -->
+        <div class="foto-contexto-container" id="tarjeta-imagen" onclick="alternarImagen()">
+            <img src="imagenes/irineo.jpg" alt="Fotografía del monumento a Irineo Pimentel" class="foto-contexto" id="img-interactiva">
+            <div class="foto-overlay-badge" id="badge-imagen">
+                <span class="icono-interaccion">🔄</span> <span>Haz clic para ver foto histórica real</span>
+            </div>
+        </div>
+        <p class="cita-pie-foto" id="texto-cita-foto">📸 <strong>Imagen 1 (Monumento 3D):</strong> Elaboración propia / Registro 3D local. Fuente biográfica: Oporto Ordóñez, Luis. "Trayectoria sindical y política de Irineo Pimentel Rojas". <em>Historias de Bolivia</em>.</p>
+
+        <!-- Bloque de Audio Narrativo -->
+        <div class="bloque-audio-narracion">
+            <span class="titulo-audio">🎙️ Relato histórico y música ambiental:</span>
+            <audio controls id="reproductor-historia" preload="auto">
+                <source src="assets/irineo.mp3" type="audio/mpeg">
+                Tu navegador no soporta la reproducción de audio.
+            </audio>
+            <p class="cita-pie-audio">🎵 <em>Relato automatizado basado en la investigación de Luis Oporto Ordóñez (La Época / Historias de Bolivia)</em>.</p>
         </div>
     </div>
 
+    <!-- PANEL DERECHO: Información Histórica y Relación con la Plaza del Minero -->
     <div id="info-sidebar">
         <div class="sidebar-scrollable">
             <section class="info-bloque">
-                <h2>Historia</h2>
-                <p>Histórico dirigente sindical minero y líder de la Federación Sindical de Trabajadores Mineros de Bolivia (FSTMB). Nacido en el distrito minero de Siglo XX en 1927, dedicó su vida a defender los derechos laborales y a combatir las dictaduras militares.</p>
+                <h2>Vida y Juventud en Siglo XX</h2>
+                <p>Nació en Siglo XX el 1° de abril de 1927. Tras la inesperada muerte de su padre Pío Pimentel, debió dejar la secundaria en Oruro e ingresar a los 14 años como albañil en Patiño Mines (1941). Tuvo una trayectoria de más de 35 años desempeñando múltiples oficios hasta alcanzar la Jefatura de la Oficina de Tiempos.</p>
+                <p class="fuente-cita">Fuente: Oporto Ordóñez, Luis. <em>Historias de Bolivia</em>.</p>
             </section>
 
             <section class="info-bloque">
-                <h2>Significado</h2>
-                <p>Ocupó la Secretaría General del Sindicato Mixto de Trabajadores Mineros de Siglo XX. Luchó activamente contra la privatización de los centros mineros y sufrió destierros y prisiones. Simboliza la lucha social, la libertad y la resistencia obrera.</p>
+                <h2>Deporte, Educación y Radios Mineras</h2>
+                <p>Secretario de Deportes (1952) y Presidente de la Asociación Deportiva Llallagua. Impulsó la construcción del Colegio "1° de Mayo", el estadio "María Barzola", la Escuela de Enfermeras y la escuela "6 de Junio". Concibió a Radio "La Voz del Minero" como bastión de lucha e implementó la "cadena nacional de radios mineras".</p>
+                <p class="fuente-cita">Fuente: <em>La Época / Historias de Bolivia</em>.</p>
+            </section>
+
+            <section class="info-bloque">
+                <h2>Combates Sindicales y Resistencia</h2>
+                <p>Líder histórico de la FSTMB junto a Federico Escobar. Combatió el Plan de Estabilización Monetaria (1956) y el Plan Triangular (1960-64). En 1963, la toma de rehenes estadounidenses por las Amas de Casa forzó su liberación. Enfrentó destierros, exilio a la Argentina en 1965 y la brutal persecución durante la "Masacre de San Juan" (1967) y la dictadura de Banzer.</p>
+                <p class="fuente-cita">Fuente: Testimonios de José Pimentel en <em>Historias de Bolivia</em>.</p>
+            </section>
+
+            <section class="info-bloque">
+                <h2>Relación con la Plaza del Minero</h2>
+                <p>Irineo Pimentel fue el principal impulsor de la construcción del monumento a Federico Escobar en la Plaza del Minero de Siglo XX. Tras su muerte en 1978 en el Hospital Obrero, su propia memoria quedó inmortalizada con un busto en esta emblemática plaza, consagrándose como pilar patrimonial del movimiento obrero.</p>
+                <p class="fuente-cita">Fuente: Archivo Histórico de la Minería Nacional.</p>
             </section>
 
             <section class="info-bloque fichatecnica">
-                <h2>Ficha Técnica</h2>
-                <p><strong>Material base:</strong> Piedra tallada / Bronce</p>
-                <p><strong>Lugar de Homenaje:</strong> Llallagua / Siglo XX</p>
+                <h2>Ficha Técnica e Histórica</h2>
+                <p><strong>Ubicación:</strong> Plaza del Minero, Siglo XX, Llallagua, Potosí.</p>
+                <p><strong>Homenaje Patrimonial:</strong> Busto erigido por el Archivo Histórico de la Minería Nacional, la UNSXX, el Ministerio de Trabajo y la FSTMB (2017).</p>
             </section>
         </div>
-        <button class="action-button-back"
-        onclick="window.location.href='index.html'">
-    Volver al Modelo 3D
-</button>
+        <button class="action-button-back" onclick="window.location.href='index.html'">
+            Volver al Modelo 3D
+        </button>
     </div>
 
+    <!-- Script de Interactividad, Alternancia de Imágenes y Autoplay de Audio -->
+    <script>
+        let mostrandoReal = false;
+
+        function alternarImagen() {
+            const img = document.getElementById('img-interactiva');
+            const badge = document.getElementById('badge-imagen');
+            const cita = document.getElementById('texto-cita-foto');
+
+            if (!mostrandoReal) {
+                // Imagen 2: Archivo histórico externo
+                img.src = 'assets/iri.png';
+                badge.innerHTML = '<span class="icono-interaccion">🔄</span> <span>Haz clic para ver modelo 3D (Elaboración propia)</span>';
+                cita.innerText = '📸 Imagen 2 (Archivo Histórico Externo): Irineo Pimentel Rojas. Fuente: Historias de Bolivia / Archivo de la FSTMB.';
+                mostrandoReal = true;
+            } else {
+                // Imagen 1: Captura del modelo 3D propio
+                img.src = 'imagenes/irineo.jpg';
+                badge.innerHTML = '<span class="icono-interaccion">🔄</span> <span>Haz clic para ver foto histórica real</span>';
+                cita.innerText = '📸 Imagen 1 (Monumento 3D): Elaboración propia / Registro 3D local. Fuente biográfica: Oporto Ordóñez, Luis. "Trayectoria sindical y política de Irineo Pimentel Rojas". Historias de Bolivia.';
+                mostrandoReal = false;
+            }
+        }
+
+        // Sistema para forzar la reproducción de audio al ingresar o con el primer gesto del usuario
+        window.addEventListener('DOMContentLoaded', () => {
+            const reproductor = document.getElementById('reproductor-historia');
+            reproductor.volume = 0.85;
+
+            let promesaPlay = reproductor.play();
+            if (promesaPlay !== undefined) {
+                promesaPlay.catch(() => {
+                    const iniciarAudioInvisible = () => {
+                        reproductor.play().catch(e => console.log("Audio iniciado tras interacción.", e));
+                        window.removeEventListener('click', iniciarAudioInvisible);
+                        window.removeEventListener('touchstart', iniciarAudioInvisible);
+                        window.removeEventListener('keydown', iniciarAudioInvisible);
+                    };
+
+                    window.addEventListener('click', iniciarAudioInvisible, { once: true });
+                    window.addEventListener('touchstart', iniciarAudioInvisible, { once: true });
+                    window.addEventListener('keydown', iniciarAudioInvisible, { once: true });
+                });
+            }
+        });
+    </script>
+
+    <!-- LIBRERÍAS THREE.JS Y SCRIPTS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/108/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/controls/OrbitControls.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/postprocessing/OutlinePass.js"></script>
+
     <script src="irineo.js"></script>
 </body>
 </html>

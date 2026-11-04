@@ -6,11 +6,12 @@
     <title>Monumento a Federico Escobar Zapata - Vista 3D</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@700;900&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">    
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@700;900&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="federico.css">
 </head>
 <body>
-
+    <div class="fondo-galeria"></div>
+    <div class="luces-overlay"></div>
     <div id="loader-container">
         <div class="loader-content">
             <div class="loader-brand">POTOSÍ - LLALLAGUA - SIGLO XX</div>
@@ -21,45 +22,192 @@
             <div id="progress-text">0%</div>
         </div>
     </div>
-
+    <div id="aviso-rotacion">
+        <span>✋ Arrastra para mover y rotar en 3D</span>
+    </div>
     <div class="main-titulo-izquierdo">
         <h1 class="texto-region">Potosí - Llallagua - Siglo XX</h1>
-        <h2 class="texto-monumento">Monumento <span>a Federico Escobar</span></h2>
-        <div class="foto-contexto-container">
-            <!-- Reemplaza 'ruta/a/tu/foto.jpg' con la ubicación real de tu imagen -->
-            <img src="imagenes/federico.jpg" alt="Fotografía histórica del monumento" class="foto-contexto">
+        <h2 class="texto-monumento">
+            Monumento <span>a Federico Escobar</span>
+        </h2>
+        <div class="foto-contexto-container" id="tarjeta-imagen" onclick="alternarImagen()">
+            <img src="imagenes/federico.jpg"
+                 alt="Fotografía del monumento"
+                 class="foto-contexto"
+                 id="img-interactiva">
+            <div class="foto-overlay-badge" id="badge-imagen">
+                <span class="icono-interaccion">🔄</span>
+                <span>Haz clic para ver foto histórica real</span>
+            </div>
         </div>
+        <p class="cita-pie-foto" id="texto-cita-foto">
+            📸 <strong>Imagen 1 (Monumento 3D):</strong>
+            Elaboración propia / Registro 3D local.
+            Fuente biográfica: Claure C., Javier.
+            "Federico Escóbar; Un caudillo del sindicalismo boliviano".
+            <em>Historias de Bolivia</em>.
+        </p>
+
+        <!-- REPRODUCTOR DE AUDIO -->
+        <div class="bloque-audio-narracion">
+
+            <span class="titulo-audio">
+                🎙️ Relato histórico y música ambiental:
+            </span>
+
+            <audio controls autoplay id="reproductor-historia" preload="auto">
+                <source src="assets/federico.mp3" type="audio/mpeg">
+                Tu navegador no soporta la reproducción de audio.
+            </audio>
+
+            <p class="cita-pie-audio">
+                🎵 <em>Relato automatizado basado en el artículo de Javier Claure C. y testimonios de Víctor Reinaga</em>.
+            </p>
+
+        </div>
+
     </div>
 
+    <!-- PANEL DERECHO -->
     <div id="info-sidebar">
+
         <div class="sidebar-scrollable">
+
             <section class="info-bloque">
-                <h2>Historia</h2>
-                <p>Nacido en Oruro el 26 de noviembre de 1923, fue un histórico y fundamental líder sindical minero de Bolivia. Trabajador del campamento Siglo XX en la mina Catavi, dedicó su vida a la defensa de los derechos de los trabajadores del subsuelo.</p>
+                <h2>Origen y Juventud</h2>
+                <p>Federico Escóbar Zapata nació en Oruro el 26 de noviembre de 1923, siendo hijo de Francisco Eleuterio Escóbar y Nieves Zapata de Escóbar. A los 17 años comenzó a trabajar en la Empresa Minera Catavi en el campamento de Siglo XX.</p>
+                <p class="fuente-cita">Fuente: Claure C., Javier. <em>Historias de Bolivia</em>.</p>
             </section>
 
             <section class="info-bloque">
-                <h2>Significado</h2>
-                <p>Ocupó el cargo clave de Control Obrero en la Corporación Minera de Bolivia (COMIBOL) y fue un ferviente impulsor de la conciencia política, además de fundador del Partido Comunista Marxista Leninista. Su legado representa la lucha inquebrantable del proletariado minero boliviano.</p>
+                <h2>Liderazgo y Pensamiento Sindical</h2>
+                <p>Ocupó el cargo de Control Obrero de Siglo XX, elegido democráticamente por las bases. Su camarada Víctor Reinaga lo recordó así: <em>"Me impresionó fundamentalmente su concepción marxista de la vida. Sentía desde lejos el dolor humano. Es por eso su entrega a la colectividad y a los trabajadores"</em>.</p>
+                <p class="fuente-cita">Fuente: Testimonio de Víctor Reinaga en <em>Historias de Bolivia</em>.</p>
+            </section>
+
+            <section class="info-bloque">
+                <h2>Hito Político y Muerte Enigmática</h2>
+                <p>En abril de 1965, participó en un congreso con más de 500 delegados donde fundó los cimientos de una poderosa organización marxista-leninista obrera. Su vida se truncó con su prematura muerte el 8 de noviembre de 1966.</p>
+                <p class="fuente-cita">Fuente: Archivo facilitado por María Cruzcaya Escóbar en <em>Historias de Bolivia</em>.</p>
+            </section>
+
+            <section class="info-bloque">
+                <h2>Relación con la Plaza del Minero</h2>
+                <p>Federico Escóbar es una figura central inmortalizada en la Plaza del Minero de Siglo XX. Su estatua resguarda junto a la sede sindical el legado ideológico y la lucha revolucionaria.</p>
+                <p class="fuente-cita">Fuente: Contexto histórico del monumento.</p>
             </section>
 
             <section class="info-bloque fichatecnica">
-                <h2>Ficha Técnica</h2>
-                <p><strong>Material base:</strong> Metal esculpido / Bronce</p>
-                <p><strong>Lugar de Homenaje:</strong> Campamento Siglo XX, Catavi - Llallagua</p>
+                <h2>Ficha Técnica e Histórica</h2>
+                <p><strong>Ubicación:</strong> Plaza del Minero, Siglo XX, Llallagua, Potosí.</p>
+                <p><strong>Compilación web:</strong> Blog <em>Historias de Bolivia</em>.</p>
             </section>
+
         </div>
-<button class="action-button-back"
-        onclick="window.location.href='index.html'">
-    Volver al Modelo 3D
-</button>
-</button>
+
+        <button class="action-button-back" onclick="window.location.href='index.html'">
+            Volver al Modelo 3D
+        </button>
+
     </div>
 
+    <!-- CONTROL DE IMÁGENES Y AUDIO -->
+    <script>
+
+        let mostrandoReal = false;
+
+        function alternarImagen() {
+
+            const img = document.getElementById('img-interactiva');
+            const badge = document.getElementById('badge-imagen');
+            const cita = document.getElementById('texto-cita-foto');
+
+            if (!mostrandoReal) {
+
+                img.src = 'assets/feder.png';
+
+                badge.innerHTML =
+                    '<span class="icono-interaccion">🔄</span> <span>Haz clic para ver modelo 3D (Elaboración propia)</span>';
+
+                cita.innerText =
+                    '📸 Imagen 2 (Archivo Histórico Externo): Federico Escóbar. Fuente: Historias de Bolivia.';
+
+                mostrandoReal = true;
+
+            } else {
+
+                img.src = 'imagenes/federico.jpg';
+
+                badge.innerHTML =
+                    '<span class="icono-interaccion">🔄</span> <span>Haz clic para ver foto histórica real</span>';
+
+                cita.innerText =
+                    '📸 Imagen 1 (Monumento 3D): Elaboración propia.';
+
+                mostrandoReal = false;
+            }
+        }
+
+        // =========================================
+        // AUDIO AUTOMÁTICO AL TERMINAR LA CARGA
+        // =========================================
+
+        const reproductor = document.getElementById('reproductor-historia');
+
+        reproductor.volume = 0.85;
+
+        function reproducirHistoria() {
+
+            reproductor.play().then(function() {
+
+                console.log('Audio reproduciéndose correctamente');
+
+            }).catch(function(error) {
+
+                console.log('El navegador bloqueó el audio automático:', error);
+
+            });
+
+        }
+
+        // Preparar el audio
+        reproductor.addEventListener('canplay', function() {
+            console.log('Audio listo para reproducirse');
+        });
+
+        // Intentar reproducir cuando se cargue el documento
+        document.addEventListener('DOMContentLoaded', reproducirHistoria);
+
+        // Reintentar cuando el usuario interactúe, si el navegador lo bloqueó
+        function activarAudio() {
+
+            if (reproductor.paused) {
+                reproducirHistoria();
+            }
+
+            if (!reproductor.paused) {
+                document.removeEventListener('click', activarAudio);
+                document.removeEventListener('keydown', activarAudio);
+            }
+        }
+
+        document.addEventListener('click', activarAudio);
+        document.addEventListener('keydown', activarAudio);
+
+    </script>
+
+    <!-- LIBRERÍAS THREE.JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/108/three.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/loaders/GLTFLoader.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/controls/OrbitControls.js"></script>
-    
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/postprocessing/OutlinePass.js"></script>
     <script src="federico.js"></script>
 </body>
 </html>

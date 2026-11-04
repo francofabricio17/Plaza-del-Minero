@@ -1,24 +1,35 @@
+// ====================================================
+// MODELO 3D Y ESCENA THREE.JS - MONUMENTO CÉSAR, GUILLERMO E ISAAC
+// ====================================================
+
 var scene;
 var camera;
 var renderer;
-var plaza; // Guarda el modelo de tu estatua (Cesar)
+var plaza; // Guarda el modelo de César, Guillermo e Isaac
 var controles;
 var arrayMeteoros = []; // Arreglo para los meteoros 3D
+
+// Reloj para controlar el parpadeo suave del outline
+var clock = new THREE.Clock();
+
+// Variables para Postprocessing (Outline)
+var composer, renderPass, outlinePass;
+var objetosSeleccionadosOutline = [];
 
 function init()
 {
     scene = new THREE.Scene();
     
-    // 1. FONDO DE AMBIENTE MINERO COMPLEJO (Tonalidades carbón, acero y base terracota)
+    // 1. FONDO DE AMBIENTE MINERO COMPLEJO
     const canvasFondo = document.createElement('canvas');
     canvasFondo.width = 1;
     canvasFondo.height = 256;
     const ctx = canvasFondo.getContext('2d');
     const degradado = ctx.createLinearGradient(0, 0, 0, 256);
     
-    degradado.addColorStop(0, '#0d0f12');   // Gris muy oscuro (profundidad)
-    degradado.addColorStop(0.6, '#1e252b');  // Gris acero / azulado
-    degradado.addColorStop(1, '#4a2f13');    // Tono terracota / óxido mineral en la base
+    degradado.addColorStop(0, '#0d0f12');   
+    degradado.addColorStop(0.6, '#1e252b');  
+    degradado.addColorStop(1, '#4a2f13');    
     ctx.fillStyle = degradado;
     ctx.fillRect(0, 0, 1, 256);
     
@@ -30,7 +41,7 @@ function init()
     }
     scene.background = texturaCielo;
 
-    // 2. PARTÍCULAS EN SUSPENSIÓN (Chispas o polvo de oro mineral flotante)
+    // 2. PARTÍCULAS EN SUSPENSIÓN
     const verticesChispas = [];
     for (let i = 0; i < 600; i++) {
         const x = (Math.random() - 0.5) * 60;
@@ -46,7 +57,6 @@ function init()
         geomChispas.addAttribute('position', new THREE.BufferAttribute(new Float32Array(verticesChispas), 3));
     }
     
-    // Material del polvo flotante color cobre/oro
     const matChispas = new THREE.PointsMaterial({
         color: 0xe0a96d,
         size: 0.15, 
@@ -63,11 +73,11 @@ function init()
     camera.position.set(0, 5, 10);
     
     // 4. Renderizador optimizado de Alta Exposición
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.3; // Exposición optimizada para resaltar texturas metálicas/oscuras
+    renderer.toneMappingExposure = 1.3; 
     
     if (renderer.outputColorSpace) {
         renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -78,7 +88,21 @@ function init()
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.body.appendChild(renderer.domElement);
     
-    // 5. Controles interactivos de órbita con restricciones en el suelo
+    // --- Configuración de EffectComposer y OutlinePass ---
+    composer = new THREE.EffectComposer(renderer);
+    renderPass = new THREE.RenderPass(scene, camera);
+    composer.addPass(renderPass);
+
+    // OutlinePass con tono Bronce / Cobre apagado y parpadeante
+    outlinePass = new THREE.OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), scene, camera);
+    outlinePass.visibleEdgeColor.set(0xd48837); // Tono Bronce / Cobre apagado
+    outlinePass.hiddenEdgeColor.set(0x8c5319);  // Sombra Bronce oscuro
+    outlinePass.edgeStrength = 3.5;              
+    outlinePass.edgeGlow = 0.5;                  
+    outlinePass.edgeThickness = 2.0;             
+    composer.addPass(outlinePass);
+
+    // 5. Controles de Órbita
     controles = new THREE.OrbitControls(camera, renderer.domElement);
     controles.enableDamping = true;
     controles.dampingFactor = 0.08;
@@ -87,16 +111,15 @@ function init()
     controles.enablePan = true;
     controles.minDistance = 2;
     controles.maxDistance = 150;
-    controles.maxPolarAngle = Math.PI / 2; // Impide que la cámara baje del nivel del suelo
+    controles.maxPolarAngle = Math.PI / 2; 
     
-    // 6. Configuración de Iluminación Mixta Avanzada (Estilo cinematográfico de mina)
+    // 6. Iluminación
     var ambientLight = new THREE.AmbientLight(0x3a3530, 0.8); 
     scene.add(ambientLight);
     
     var hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x1a110a, 0.6);
     scene.add(hemisphereLight);
     
-    // Luz frontal/principal potente y cálida
     var directionalLight = new THREE.DirectionalLight(0xffeebb, 2.0); 
     directionalLight.position.set(10, 25, 20);
     directionalLight.castShadow = true;
@@ -104,12 +127,10 @@ function init()
     directionalLight.shadow.mapSize.height = 2048;
     scene.add(directionalLight);
     
-    // Luz de contra lateral fría (Aporta recortes precisos en bordes oscuros)
     var directionalLight2 = new THREE.DirectionalLight(0x567085, 1.2); 
     directionalLight2.position.set(-15, 15, -10);
     scene.add(directionalLight2);
 
-    // Foco de estudio cenital directo
     var spotLight = new THREE.SpotLight(0xffd180, 2.0);
     spotLight.position.set(0, 35, 10);
     spotLight.angle = Math.PI / 4;
@@ -117,19 +138,19 @@ function init()
     spotLight.castShadow = true;
     scene.add(spotLight);
     
-    // Captura de elementos del Loader HTML
     var loaderContainer = document.getElementById('loader-container');
     var progressBar = document.getElementById('progress-bar');
     var progressText = document.getElementById('progress-text');
     
-    // 7. Carga del Modelo .GLB de César
     var cargar = new THREE.GLTFLoader();
+    
+    // 7. Carga del Modelo .GLB de César
     cargar.load("assets/Cesar.glb", 
         function(gltf)
         {
             plaza = gltf.scene;
             plaza.position.set(0, 0, 0);
-            plaza.scale.set(2, 2, 2); // Escala original conservada
+            plaza.scale.set(4.5, 4.5, 4.5); 
             
             plaza.traverse(function(obj)
             {
@@ -140,7 +161,7 @@ function init()
                     if(obj.material)
                     {
                         obj.material.needsUpdate = true;
-                        obj.material.roughness = 0.4; // Respuesta ideal para reflejos lumínicos
+                        obj.material.roughness = 0.4; 
                         if(obj.material.map)
                         {
                             obj.material.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
@@ -150,17 +171,25 @@ function init()
             });
             scene.add(plaza);
             
-            // --- CENTRADO DINÁMICO EN EL CANVAS ---
+            // Añadir mallas del modelo de César al efecto Outline
+            var meshesOutline = [];
+            plaza.traverse(function(child) {
+                if (child.isMesh) {
+                    meshesOutline.push(child);
+                }
+            });
+            outlinePass.selectedObjects = meshesOutline;
+            
             var box = new THREE.Box3().setFromObject(plaza);
             var center = box.getCenter(new THREE.Vector3());
             
-            controles.target.set(center.x, center.y, center.z);
+            var alturaBajar = center.y;
+            controles.target.set(center.x, alturaBajar, center.z);
             
-            // Ajuste de cámara para estar un poco más alejada (z + 22) y encuadrar mejor el modelo y fondo
-            camera.position.set(center.x, center.y + 4, center.z + 22);
+            // Posición de cámara cenital / vista desde arriba en picada
+            camera.position.set(center.x, alturaBajar + 10, center.z + 8);
             controles.update();
             
-            // Desvanecer el loader al finalizar
             setTimeout(function() {
                 if (loaderContainer) loaderContainer.classList.add('loaded');
             }, 250);
@@ -228,9 +257,15 @@ function animate()
 {
     requestAnimationFrame(animate);
     
-    // Rotación continua uniforme en el eje Y
     if(plaza) {
-        plaza.rotation.y += 0.01;
+        plaza.rotation.y += 0.005; // Rotación suave continua
+    }
+
+    // Parpadeo y titileo suave del contorno tipo bronce mineral
+    if (outlinePass) {
+        var elapsedTime = clock.getElapsedTime();
+        outlinePass.edgeStrength = 2.0 + Math.sin(elapsedTime * 4.0) * 1.8;
+        outlinePass.edgeGlow = 0.4 + Math.sin(elapsedTime * 4.0) * 0.35;
     }
 
     // ANIMACIÓN DE LOS METEOROS 3D
@@ -243,7 +278,6 @@ function animate()
         meteoro.rotation.y += meteoro.userData.velRotacionY;
         meteoro.rotation.z += meteoro.userData.velRotacionZ;
         
-        // Bucle de reaparición en la parte superior
         if (meteoro.position.y < -15) {
             meteoro.position.y = 60 + Math.random() * 20;
             meteoro.position.x = (Math.random() - 0.5) * 100;
@@ -252,7 +286,13 @@ function animate()
     }
 
     controles.update();
-    renderer.render(scene, camera);
+    
+    // Renderizado a través del composer
+    if (composer) {
+        composer.render();
+    } else {
+        renderer.render(scene, camera);
+    }
 }
 
 // Responsividad del viewport
@@ -264,6 +304,9 @@ window.addEventListener("resize", function()
         }
         if(renderer) {
             renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        if(composer) {
+            composer.setSize(window.innerWidth, window.innerHeight);
         }
     }
 );

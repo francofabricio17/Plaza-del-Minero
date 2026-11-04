@@ -127,7 +127,7 @@ body {
 }
 
 .btn-salir:hover {
-    background: rgba(124, 60, 60, 0.85); /* Tonalidad sutilmente distintiva o acorde al estilo dorado/oscuro */
+    background: rgba(124, 60, 60, 0.85);
     border-color: #e0b066;
     color: #ffffff;
     box-shadow: 0 0 15px rgba(224, 176, 102, 0.4);
@@ -432,6 +432,14 @@ body {
     max-height: 72vh; 
     transform: translateY(-50%);
     opacity: 0;
+    /* Contenedor con color mineral oscuro, opacidad equilibrada y efecto blur */
+    background: rgba(24, 28, 32, 0.60);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(224, 176, 102, 0.35);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     transition:
         left 0.8s cubic-bezier(.22, .8, .2, 1),
         top 0.8s cubic-bezier(.22, .8, .2, 1),

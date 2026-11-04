@@ -10,7 +10,9 @@
     <link rel="stylesheet" href="cesar.css">
 </head>
 <body>
-
+    <!-- Fondo dinámico y luces -->
+    <div class="fondo-galeria"></div>
+    <div class="luces-overlay"></div>
     <div id="loader-container">
         <div class="loader-content">
             <div class="loader-brand">POTOSÍ - LLALLAGUA - SIGLO XX</div>
@@ -22,47 +24,138 @@
         </div>
     </div>
 
+    <!-- Indicador flotante de rotación 3D en la parte inferior -->
+    <div id="aviso-rotacion">
+        <span>✋ Arrastra para mover y rotar en 3D</span>
+    </div>
+
+    <!-- PANEL IZQUIERDO: Títulos, Tarjeta Vertical Alargada Interactiva (4 imágenes) y Audio -->
     <div class="main-titulo-izquierdo">
         <h1 class="texto-region">Potosí - Llallagua - Siglo XX</h1>
         <h2 class="texto-monumento">Monumento <span>César, Guillermo</span></h2>
         <h3 class="texto-monumento"><span>e Isaac</span></h3>
-        <!-- ▼ AÑADE ESTE BLOQUE ▼ -->
-        <div class="foto-contexto-container">
-            <!-- Reemplaza 'ruta/a/tu/foto.jpg' con la ubicación real de tu imagen -->
-            <img src="imagenes/cesar.jpg" alt="Fotografía histórica del monumento" class="foto-contexto">
+        
+        <!-- Tarjeta de Imagen Vertical Interactiva (Alterna secuencialmente entre las 4 imágenes) -->
+        <div class="foto-contexto-container" id="tarjeta-imagen" onclick="alternarImagen()">
+            <img src="imagenes/cesar.jpg" alt="Fotografía del monumento a César, Guillermo e Isaac" class="foto-contexto" id="img-interactiva">
+            <div class="foto-overlay-badge" id="badge-imagen">
+                <span class="icono-interaccion">🔄</span> <span>Haz clic para ver la siguiente foto histórica</span>
+            </div>
         </div>
-        <!-- ▲ FIN DEL BLOQUE ▲ -->
-    </div>
+        <p class="cita-pie-foto" id="texto-cita-foto">📸 <strong>Imagen 1 (Monumento 3D):</strong> Elaboración propia / Registro 3D local. Fuente biográfica: Wikipedia / Víctor Montoya, "Isaac Camacho: Crónica de un desaparecido"[cite: 1, 3].</p>
 
+        <!-- Bloque de Audio con Autoplay y Desbloqueo por Interacción -->
+        <div class="bloque-audio-narracion">
+            <span class="titulo-audio">🎙️ Relato histórico y música ambiental:</span>
+            <audio controls id="reproductor-historia" preload="auto">
+                <source src="assets/cesar.mp3" type="audio/mpeg">
+                Tu navegador no soporta la reproducción de audio.
+            </audio>
+            <p class="cita-pie-audio">🎵 <em>Relato basado en la vida sindical de César Lora, Guillermo Lora e Isaac Camacho[cite: 1, 2, 3].</em></p>
+        </div>
+    </div>
+    <!-- PANEL DERECHO: Información Histórica -->
     <div id="info-sidebar">
         <div class="sidebar-scrollable">
             <section class="info-bloque">
-                <h2>Historia</h2>
-                <p>Erigido en homenaje a tres figuras fundamentales del movimiento obrero minero de Llallagua y Siglo XX: César Lora, el legendario dirigente trotskista y líder sindical; Guillermo Lora, el destacado teórico e ideólogo revolucionario; e Isaac Camacho, valeroso dirigente minero.</p>
+                <h2>César Lora: Líder y Mártir</h2>
+                <p>Nacido en Moscarí el 15 de agosto de 1927[cite: 1], César Lora fue un destacado sindicalista minero y militante trotskista del POR[cite: 1]. Encarnó las <em>Tesis de Pulacayo</em> en Siglo XX, organizando a los trabajadores contra la rosca minera y las dictaduras militares[cite: 3]. Fue trágicamente asesinado en Sacana el 29 de julio de 1965 por órdenes de la Junta Militar y la CIA[cite: 1, 3].</p>
+                <p class="fuente-cita">Fuente: Wikipedia &amp; Montoya, Víctor. <em>Isaac Camacho: Crónica de un desaparecido</em>[cite: 1, 3].</p>
             </section>
 
             <section class="info-bloque">
-                <h2>Significado</h2>
-                <p>El pedestal unificado simboliza la unidad ideológica, la resistencia obrera y la lucha inclaudicable contra las dictaduras y la explotación. Es un recordatorio permanente del pensamiento revolucionario surgido en las entrañas de los campamentos mineros.</p>
+                <h2>Guillermo Lora y el Pensamiento Trotskista</h2>
+                <p>Nacido en Uncía en 1922[cite: 2], Guillermo Lora fue el principal teórico e ideólogo del Partido Obrero Revolucionario (POR)[cite: 2]. Redactó la histórica <em>Tesis de Pulacayo</em> en 1946 durante el Congreso de la FSTMB en Llallagua, documento fundamental del movimiento obrero boliviano[cite: 2]. Dedicó su vida a consolidar la conciencia de clase proletaria hasta su fallecimiento en 2009[cite: 2].</p>
+                <p class="fuente-cita">Fuente: Elías Blanco / Wikipedia - Biografía de Guillermo Lora[cite: 2].</p>
+            </section>
+
+            <section class="info-bloque">
+                <h2>Isaac Camacho: Lealtad y Testimonio</h2>
+                <p>Nacido en Llallagua, Isaac Camacho fue rescatado de la bohemia por César Lora para convertirse en su más fiel colaborador y en un pilar organizativo del POR en las minas[cite: 3]. Tras presenciar el asesinato de César Lora en 1965, cargó su cuerpo y denunció la masacre[cite: 3]. Sobrevivió a persecuciones, campos de concentración y la brutal Masacre de San Juan de 1967[cite: 3].</p>
+                <p class="fuente-cita">Fuente: Montoya, Víctor. <em>Isaac Camacho: Crónica de un desaparecido</em>[cite: 3].</p>
+            </section>
+
+            <section class="info-bloque">
+                <h2>Significado del Monumento</h2>
+                <p>Erigido en homenaje a estas tres columnas del sindicalismo revolucionario, el monumento en Llallagua simboliza la unidad ideológica, la resistencia obrera y la memoria inclaudicable de los mártires de Siglo XX.</p>
+                <p class="fuente-cita">Fuente: Archivo histórico de las luchas obreras de Potosí.</p>
             </section>
 
             <section class="info-bloque fichatecnica">
-                <h2>Ficha Técnica</h2>
-                <p><strong>Personajes homenajeados:</strong> César Lora, Guillermo Lora e Isaac Camacho</p>
-                <p><strong>Material base:</strong> Metal esculpido / Bronce y pedestal de piedra</p>
-                <p><strong>Ubicación:</strong> Plaza principal, Llallagua</p>
+                <h2>Ficha Técnica e Histórica</h2>
+                <p><strong>Ubicación:</strong> Plaza principal, Llallagua, Potosí.</p>
+                <p><strong>Personajes:</strong> César Lora, Guillermo Lora e Isaac Camacho[cite: 1, 2, 3].</p>
             </section>
         </div>
-        <button class="action-button-back"
-        onclick="window.location.href='index.html'">
-    Volver al Modelo 3D
-</button>
-        </div>
-
+        <button class="action-button-back" onclick="window.location.href='index.html'">
+            Volver al Modelo 3D
+        </button>
+    </div>
+    <!-- Script de Interactividad (Rotación secuencial de las 4 imágenes) y Autoplay de Audio -->
+    <script>
+        let indiceImagen = 0;
+        const galeriaImágenes = [
+            {
+                src: 'imagenes/cesar.jpg',
+                badge: '🔄 Haz clic para ver a César Lora (Histórica)',
+                cita: '📸 Imagen 1 (Monumento 3D): Elaboración propia / Registro 3D local. Fuente biográfica: Wikipedia / Víctor Montoya, "Isaac Camacho: Crónica de un desaparecido"[cite: 1, 3].'
+            },
+            {
+                src: 'assets/cesarreal.png',
+                badge: '🔄 Haz clic para ver a Guillermo Lora (Histórica)',
+                cita: '📸 Imagen 2 (César Lora): Fotografía histórica e investigativa recopilada de Historias de Bolivia[cite: 1].'
+            },
+            {
+                src: 'assets/giller.png',
+                badge: '🔄 Haz clic para ver a Isaac Camacho (Histórica)',
+                cita: '📸 Imagen 3 (Guillermo Lora): Fotografía histórica recopilada del Diccionario Cultural Boliviano (Elías Blanco)[cite: 2].'
+            },
+            {
+                src: 'assets/isacreal.png',
+                badge: '🔄 Haz clic para volver al Modelo 3D',
+                cita: '📸 Imagen 4 (Isaac Camacho): Retrato de estudio y fiel colaborador de César Lora. Fuente: Víctor Montoya, "Isaac Camacho: Crónica de un desaparecido"[cite: 3].'
+            }
+        ];
+        function alternarImagen() {
+            const img = document.getElementById('img-interactiva');
+            const badge = document.getElementById('badge-imagen');
+            const cita = document.getElementById('texto-cita-foto');
+            // Avanzar al siguiente índice de manera circular (0 -> 1 -> 2 -> 3 -> 0)
+            indiceImagen = (indiceImagen + 1) % galeriaImágenes.length;
+            const actual = galeriaImágenes[indiceImagen];
+            img.src = actual.src;
+            badge.innerHTML = `<span class="icono-interaccion">🔄</span> <span>${actual.badge}</span>`;
+            cita.innerText = actual.cita;
+        }
+        // Sistema para forzar la reproducción de audio al ingresar o con el primer gesto
+        window.addEventListener('DOMContentLoaded', () => {
+            const reproductor = document.getElementById('reproductor-historia');
+            reproductor.volume = 0.85;
+            let promesaPlay = reproductor.play();
+            if (promesaPlay !== undefined) {
+                promesaPlay.catch(() => {
+                    const iniciarAudioInvisible = () => {
+                        reproductor.play().catch(e => console.log("Audio iniciado tras interacción.", e));
+                        window.removeEventListener('click', iniciarAudioInvisible);
+                        window.removeEventListener('touchstart', iniciarAudioInvisible);
+                        window.removeEventListener('keydown', iniciarAudioInvisible);
+                    };
+                    window.addEventListener('click', iniciarAudioInvisible, { once: true });
+                    window.addEventListener('touchstart', iniciarAudioInvisible, { once: true });
+                    window.addEventListener('keydown', iniciarAudioInvisible, { once: true });
+                });
+            }
+        });
+    </script>
+    <!-- LIBRERÍAS THREE.JS Y SCRIPTS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/108/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/controls/OrbitControls.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.108.0/examples/js/postprocessing/OutlinePass.js"></script>
     <script src="cesar.js"></script>
 </body>
 </html>

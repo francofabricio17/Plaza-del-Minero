@@ -1,15 +1,22 @@
+// ====================================================
+// ESCENA THREE.JS Y ESCULTURA 3D - FEDERICO ESCOBAR
+// ====================================================
+
 var scene;
 var camera;
 var renderer;
-var federicoModel; // Variable para representar el modelo 3D de Federico Escobar
+var federicoModel; 
 var controles;
-var arrayMeteoros = []; // Arreglo para los meteoros 3D
+var arrayMeteoros = [];
+
+var clock = new THREE.Clock();
+var composer, renderPass, outlinePass;
 
 function init()
 {
     scene = new THREE.Scene();
     
-    // 1. FONDO DE AMBIENTE MINERO COMPLEJO
+    // 1. Fondo con degradado minero
     const canvasFondo = document.createElement('canvas');
     canvasFondo.width = 1;
     canvasFondo.height = 256;
@@ -30,7 +37,7 @@ function init()
     }
     scene.background = texturaCielo;
 
-    // 2. PARTÍCULAS EN SUSPENSIÓN
+    // 2. Partículas de polvo mineral flotante
     const verticesChispas = [];
     for (let i = 0; i < 600; i++) {
         const x = (Math.random() - 0.5) * 60;
@@ -54,15 +61,13 @@ function init()
         opacity: 0.6
     });
     
-    const puntosChispas = new THREE.Points(geomChispas, matChispas);
-    scene.add(puntosChispas);
+    scene.add(new THREE.Points(geomChispas, matChispas));
 
-    // 3. Configuración de Cámara
+    // 3. Cámara y Renderizador
     camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 2000);
     camera.position.set(0, 5, 10);
     
-    // 4. Renderizador optimizado de Alta Exposición
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -77,7 +82,20 @@ function init()
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.body.appendChild(renderer.domElement);
     
-    // 5. Controles interactivos de órbita
+    // Postprocessing: Efecto Outline
+    composer = new THREE.EffectComposer(renderer);
+    renderPass = new THREE.RenderPass(scene, camera);
+    composer.addPass(renderPass);
+
+    outlinePass = new THREE.OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), scene, camera);
+    outlinePass.visibleEdgeColor.set(0xd48837);
+    outlinePass.hiddenEdgeColor.set(0x8c5319);
+    outlinePass.edgeStrength = 3.5;              
+    outlinePass.edgeGlow = 0.5;                  
+    outlinePass.edgeThickness = 2.0;             
+    composer.addPass(outlinePass);
+
+    // 4. Controles de Órbita
     controles = new THREE.OrbitControls(camera, renderer.domElement);
     controles.enableDamping = true;
     controles.dampingFactor = 0.08;
@@ -88,7 +106,7 @@ function init()
     controles.maxDistance = 150;
     controles.maxPolarAngle = Math.PI / 2; 
     
-    // 6. ILUMINACIÓN TEMÁTICA POTENCIADA
+    // 5. Iluminación
     var ambientLight = new THREE.AmbientLight(0x4a433c, 1.4); 
     scene.add(ambientLight);
     
@@ -121,13 +139,13 @@ function init()
     
     var cargar = new THREE.GLTFLoader();
     
-    // 7. Carga del Modelo .GLB de Federico Escobar
+    // 6. Carga del Modelo .GLB de Federico Escobar
     cargar.load("assets/Fede.glb", 
         function(gltf)
         {
             federicoModel = gltf.scene;
-            federicoModel.position.set(0, 0, 0);
-            federicoModel.scale.set(5, 5, 5); 
+            federicoModel.position.set(0, 20, 0);
+            federicoModel.scale.set(6, 6, 6); 
             
             federicoModel.traverse(function(obj)
             {
@@ -148,6 +166,14 @@ function init()
             });
             scene.add(federicoModel);
             
+            var meshesOutline = [];
+            federicoModel.traverse(function(child) {
+                if (child.isMesh) {
+                    meshesOutline.push(child);
+                }
+            });
+            outlinePass.selectedObjects = meshesOutline;
+            
             var box = new THREE.Box3().setFromObject(federicoModel);
             var center = box.getCenter(new THREE.Vector3()); 
             var size = box.getSize(new THREE.Vector3());
@@ -157,17 +183,38 @@ function init()
             
             spotLight.position.set(center.x, center.y + size.y * 1.5, center.z + 1);
             
-            var alturaBajar = center.y + 1; 
+            var alturaBajar = center.y; 
             
             controles.target.set(center.x, alturaBajar, center.z);
-            
-            // Distancia de cámara ajustada para estar un poco más alejada y enmarcar mejor (z+26)
-            camera.position.set(center.x, alturaBajar + 3, center.z + 26);
+            camera.position.set(center.x, alturaBajar + 13, center.z + 10);
             controles.update();
             
             setTimeout(function() {
-                if (loaderContainer) loaderContainer.classList.add('loaded');
-            }, 250);
+
+    // Ocultar pantalla de carga
+    if (loaderContainer) {
+        loaderContainer.classList.add('loaded');
+    }
+
+    // REPRODUCIR AUDIO AUTOMÁTICAMENTE
+    var reproductor = document.getElementById('reproductor-historia');
+
+    if (reproductor) {
+
+        reproductor.volume = 0.85;
+
+        reproductor.play().then(function() {
+
+            console.log("Audio iniciado automáticamente");
+
+        }).catch(function(error) {
+
+            console.log("El navegador bloqueó la reproducción automática:", error);
+
+        });
+    }
+
+}, 250);
         },
         function(xhr)
         {
@@ -186,7 +233,7 @@ function init()
         }
     );
 
-    // 8. CARGA Y CLONACIÓN DE LOS METEOROS 3D
+    // 7. Carga de Meteoros 3D
     cargar.load("assets/meteoro.glb", function(gltf) {
         var modeloMeteoro = gltf.scene;
 
@@ -227,7 +274,7 @@ function init()
     });
 }
 
-// 9. Ciclo de animación
+// 8. Bucle de Animación
 function animate()
 {
     requestAnimationFrame(animate);
@@ -236,17 +283,20 @@ function animate()
         federicoModel.rotation.y += 0.005;
     }
 
-    // ANIMACIÓN DE LOS METEOROS 3D
+    if (outlinePass) {
+        var elapsedTime = clock.getElapsedTime();
+        outlinePass.edgeStrength = 2.0 + Math.sin(elapsedTime * 4.0) * 1.8;
+        outlinePass.edgeGlow = 0.4 + Math.sin(elapsedTime * 4.0) * 0.35;
+    }
+
     for (let i = 0; i < arrayMeteoros.length; i++) {
         let meteoro = arrayMeteoros[i];
         
         meteoro.position.y -= meteoro.userData.velocidadCaida;
-        
         meteoro.rotation.x += meteoro.userData.velRotacionX;
         meteoro.rotation.y += meteoro.userData.velRotacionY;
         meteoro.rotation.z += meteoro.userData.velRotacionZ;
         
-        // Bucle de reaparición
         if (meteoro.position.y < -15) {
             meteoro.position.y = 60 + Math.random() * 20;
             meteoro.position.x = (Math.random() - 0.5) * 100;
@@ -255,10 +305,15 @@ function animate()
     }
 
     controles.update();
-    renderer.render(scene, camera);
+    
+    if (composer) {
+        composer.render();
+    } else {
+        renderer.render(scene, camera);
+    }
 }
 
-// Responsividad de ventana
+// Responsividad del Viewport
 window.addEventListener("resize", function()
     {
         if(camera) {
@@ -268,42 +323,11 @@ window.addEventListener("resize", function()
         if(renderer) {
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
+        if(composer) {
+            composer.setSize(window.innerWidth, window.innerHeight);
+        }
     }
 );
 
-// Ejecución
 init();
 animate();
-
-// --- INYECCIÓN DINÁMICA: ESTILOS DE BOTONES ACERO/MINA ---
-const estilosBotones = document.createElement('style');
-estilosBotones.innerHTML = `
-    button, .interfaz-controles button {
-        background: linear-gradient(135deg, #3a444d 0%, #222930 100%); 
-        color: #e0dacf; 
-        border: 2px solid #222930; 
-        border-radius: 8px; 
-        padding: 10px 20px;
-        font-family: 'Montserrat', sans-serif;
-        font-weight: bold;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        cursor: pointer;
-        transition: all 0.2s ease-in-out;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.4); 
-        position: relative;
-        overflow: hidden;
-    }
-    button:hover {
-        background: linear-gradient(135deg, #505c66 0%, #3a444d 100%);
-        color: #f4eee1;
-        box-shadow: 0 6px 12px rgba(0,0,0,0.6); 
-        transform: translateY(-2px); 
-    }
-    button:active {
-        background: linear-gradient(135deg, #191e23 0%, #0f1316 100%);
-        transform: translateY(1px); 
-        box-shadow: 0 2px 4px rgba(0,0,0,0.4);
-    }
-`;
-document.head.appendChild(estilosBotones);

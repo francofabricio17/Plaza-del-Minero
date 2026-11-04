@@ -558,7 +558,26 @@ function onWindowResize() {
 
 function animate() {
     requestAnimationFrame(animate);
-    if (controles) controles.update();
+    
+    if (controles) {
+        // --- DELIMITACIÓN EN CUADRADO PARA LA CÁMARA ---
+        // Ajusta estos valores según el tamaño exacto en Blender de tus planos perimetrales
+        var minX = -120;
+        var maxX = 10;
+        var minZ = -130;
+        var maxZ = 0;
+
+        // Aplicar la restricción cuadrada al target de los controles
+        controles.target.x = Math.max(minX, Math.min(maxX, controles.target.x));
+        controles.target.z = Math.max(minZ, Math.min(maxZ, controles.target.z));
+        
+        controles.update();
+        
+        // Evitar que la posición de la cámara baje de la altura del suelo
+        if (camera.position.y < 2) {
+            camera.position.y = 2;
+        }
+    }
     
     // Parpadeo y titileo suave del contorno tipo bronce mineral
     if (outlinePass) {

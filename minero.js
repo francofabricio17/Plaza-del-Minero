@@ -1,24 +1,34 @@
+// ====================================================
+// MODELO 3D Y ESCENA THREE.JS - MONUMENTO AL MINERO
+// ====================================================
+
 var scene;
 var camera;
 var renderer;
-var plaza; // Guarda el modelo de tu estatua (Minero)
+var plaza; // Guarda el modelo del Minero
 var controles;
-var arrayMeteoros = []; // Arreglo para los clones 3D de meteoros
+var arrayMeteoros = []; // Arreglo para los meteoros 3D
+
+// Reloj para controlar el parpadeo suave del outline
+var clock = new THREE.Clock();
+
+// Variables para Postprocessing (Outline)
+var composer, renderPass, outlinePass;
 
 function init()
 {
     scene = new THREE.Scene();
     
-    // 1. REINCORPORADO: FONDO DE AMBIENTE MINERO COMPLEJO
+    // 1. FONDO DE AMBIENTE MINERO COMPLEJO
     const canvasFondo = document.createElement('canvas');
     canvasFondo.width = 1;
     canvasFondo.height = 256;
     const ctx = canvasFondo.getContext('2d');
     const degradado = ctx.createLinearGradient(0, 0, 0, 256);
     
-    degradado.addColorStop(0, '#0d0f12');   // Gris muy oscuro (profundidad)
-    degradado.addColorStop(0.6, '#1e252b');  // Gris acero / azulado
-    degradado.addColorStop(1, '#4a2f13');    // Tono terracota / óxido mineral en la base
+    degradado.addColorStop(0, '#0d0f12');   
+    degradado.addColorStop(0.6, '#1e252b');  
+    degradado.addColorStop(1, '#4a2f13');    
     ctx.fillStyle = degradado;
     ctx.fillRect(0, 0, 1, 256);
     
@@ -30,7 +40,7 @@ function init()
     }
     scene.background = texturaCielo;
 
-    // 2. REINCORPORADO: PARTÍCULAS EN SUSPENSIÓN (Chispas o polvo de oro)
+    // 2. PARTÍCULAS EN SUSPENSIÓN
     const verticesChispas = [];
     for (let i = 0; i < 600; i++) {
         const x = (Math.random() - 0.5) * 60;
@@ -54,15 +64,14 @@ function init()
         opacity: 0.6
     });
     
-    const puntosChispas = new THREE.Points(geomChispas, matChispas);
-    scene.add(puntosChispas);
+    scene.add(new THREE.Points(geomChispas, matChispas));
 
     // 3. Perspectiva de cámara
     camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 2000);
     camera.position.set(0, 5, 10);
     
     // 4. Renderizador optimizado de Alta Exposición
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -77,7 +86,20 @@ function init()
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.body.appendChild(renderer.domElement);
     
-    // 5. Controles de Órbita con restricciones del Minero
+    // --- Configuración de EffectComposer y OutlinePass ---
+    composer = new THREE.EffectComposer(renderer);
+    renderPass = new THREE.RenderPass(scene, camera);
+    composer.addPass(renderPass);
+
+    outlinePass = new THREE.OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), scene, camera);
+    outlinePass.visibleEdgeColor.set(0xd48837); 
+    outlinePass.hiddenEdgeColor.set(0x8c5319);  
+    outlinePass.edgeStrength = 3.5;              
+    outlinePass.edgeGlow = 0.5;                  
+    outlinePass.edgeThickness = 2.0;             
+    composer.addPass(outlinePass);
+
+    // 5. Controles de Órbita
     controles = new THREE.OrbitControls(camera, renderer.domElement);
     controles.enableDamping = true;
     controles.dampingFactor = 0.08;
@@ -88,9 +110,7 @@ function init()
     controles.maxDistance = 150;
     controles.maxPolarAngle = Math.PI / 2; 
     
-    // =================================================================
-    // 6. ILUMINACIÓN MIXTA AVANZADA REFORZADA 
-    // =================================================================
+    // 6. ILUMINACIÓN MIXTA AVANZADA
     var ambientLight = new THREE.AmbientLight(0x4a433c, 1.4); 
     scene.add(ambientLight);
     
@@ -117,7 +137,6 @@ function init()
     spotLight.castShadow = true;
     scene.add(spotLight);
     
-    // Captura de elementos del Loader HTML
     var loaderContainer = document.getElementById('loader-container');
     var progressBar = document.getElementById('progress-bar');
     var progressText = document.getElementById('progress-text');
@@ -130,7 +149,7 @@ function init()
         {
             plaza = gltf.scene;
             plaza.position.set(0, 0, 0);
-            plaza.scale.set(3.5, 3.5, 3.5); // Escala exacta del Minero
+            plaza.scale.set(13, 13, 13); 
             
             plaza.traverse(function(obj)
             {
@@ -151,7 +170,14 @@ function init()
             });
             scene.add(plaza);
             
-            // --- ASIGNACIÓN DE TARGETS DE LUZ POST-CARGA ---
+            var meshesOutline = [];
+            plaza.traverse(function(child) {
+                if (child.isMesh) {
+                    meshesOutline.push(child);
+                }
+            });
+            outlinePass.selectedObjects = meshesOutline;
+            
             var box = new THREE.Box3().setFromObject(plaza);
             var center = box.getCenter(new THREE.Vector3());
             var size = box.getSize(new THREE.Vector3());
@@ -160,8 +186,9 @@ function init()
             spotLight.target = plaza;
             spotLight.position.set(center.x, center.y + size.y * 1.5, center.z + 1);
             
-            controles.target.set(center.x, center.y, center.z);
-            camera.position.set(center.x, center.y + 4, center.z + 10); 
+            var alturaBajar = center.y;
+            controles.target.set(center.x, alturaBajar, center.z);
+            camera.position.set(center.x, alturaBajar + 10, center.z + 8); 
             controles.update();
             
             setTimeout(function() {
@@ -192,24 +219,20 @@ function init()
         for (let i = 0; i < 40; i++) {
             var clon = modeloMeteoro.clone();
             
-            // Posición aleatoria
             clon.position.set(
                 (Math.random() - 0.5) * 100,
                 Math.random() * 60 + 10,
                 (Math.random() - 0.5) * 100
             );
             
-            // Rotación inicial aleatoria
             clon.rotation.set(
                 Math.random() * Math.PI,
                 Math.random() * Math.PI,
                 Math.random() * Math.PI
             );
             
-            // Escala grande como tenías en el archivo anterior
             clon.scale.set(4.5, 4.5, 4.5);
             
-            // Sombras
             clon.traverse(function(obj) {
                 if(obj.isMesh) {
                     obj.castShadow = true;
@@ -217,7 +240,6 @@ function init()
                 }
             });
 
-            // Parámetros individuales de caída y rotación
             clon.userData = {
                 velocidadCaida: Math.random() * 0.15 + 0.05,
                 velRotacionX: (Math.random() - 0.5) * 0.05,
@@ -228,7 +250,6 @@ function init()
             scene.add(clon);
             arrayMeteoros.push(clon);
         }
-        console.log("Meteoros agregados correctamente al Minero");
     });
 }
 
@@ -238,22 +259,23 @@ function animate()
     requestAnimationFrame(animate);
     
     if(plaza) {
-        plaza.rotation.y += 0.01; // Velocidad de rotación continua del Minero
+        plaza.rotation.y += 0.005;
     }
 
-    // ANIMACIÓN DE LOS METEOROS 3D
+    if (outlinePass) {
+        var elapsedTime = clock.getElapsedTime();
+        outlinePass.edgeStrength = 2.0 + Math.sin(elapsedTime * 4.0) * 1.8;
+        outlinePass.edgeGlow = 0.4 + Math.sin(elapsedTime * 4.0) * 0.35;
+    }
+
     for (let i = 0; i < arrayMeteoros.length; i++) {
         let meteoro = arrayMeteoros[i];
         
-        // Movimiento de caída
         meteoro.position.y -= meteoro.userData.velocidadCaida;
-        
-        // Rotaciones en los 3 ejes
         meteoro.rotation.x += meteoro.userData.velRotacionX;
         meteoro.rotation.y += meteoro.userData.velRotacionY;
         meteoro.rotation.z += meteoro.userData.velRotacionZ;
         
-        // Reaparición en la parte superior cuando caen al fondo
         if (meteoro.position.y < -15) {
             meteoro.position.y = 60 + Math.random() * 20;
             meteoro.position.x = (Math.random() - 0.5) * 100;
@@ -262,10 +284,15 @@ function animate()
     }
 
     controles.update();
-    renderer.render(scene, camera);
+    
+    if (composer) {
+        composer.render();
+    } else {
+        renderer.render(scene, camera);
+    }
 }
 
-// Adaptación responsiva al redimensionar ventana
+// Adaptación responsiva
 window.addEventListener("resize", function()
     {
         if(camera) {
@@ -275,42 +302,11 @@ window.addEventListener("resize", function()
         if(renderer) {
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
+        if(composer) {
+            composer.setSize(window.innerWidth, window.innerHeight);
+        }
     }
 );
 
-// Arrancar escena
 init();
 animate();
-
-// --- INYECCIÓN DINÁMICA: ESTILOS DE BOTONES ACERO/MINA ---
-const estilosBotones = document.createElement('style');
-estilosBotones.innerHTML = `
-    button, .interfaz-controles button {
-        background: linear-gradient(135deg, #3a444d 0%, #222930 100%); 
-        color: #e0dacf; 
-        border: 2px solid #222930; 
-        border-radius: 8px; 
-        padding: 10px 20px;
-        font-family: 'Montserrat', sans-serif;
-        font-weight: bold;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        cursor: pointer;
-        transition: all 0.2s ease-in-out;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.4); 
-        position: relative;
-        overflow: hidden;
-    }
-    button:hover {
-        background: linear-gradient(135deg, #505c66 0%, #3a444d 100%);
-        color: #f4eee1;
-        box-shadow: 0 6px 12px rgba(0,0,0,0.6); 
-        transform: translateY(-2px); 
-    }
-    button:active {
-        background: linear-gradient(135deg, #191e23 0%, #0f1316 100%);
-        transform: translateY(1px); 
-        box-shadow: 0 2px 4px rgba(0,0,0,0.4);
-    }
-`;
-document.head.appendChild(estilosBotones);
