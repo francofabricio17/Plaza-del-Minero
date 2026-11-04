@@ -522,26 +522,6 @@ function init() {
         var pilar27 = modelodorado.clone(); pilar27.position.set(-142, 14, -132); pilar27.rotation.y = Math.PI / 2; scene.add(pilar27);
         var pilar28 = modelodorado.clone(); pilar28.position.set(-142, 14, -145); pilar28.rotation.y = Math.PI / 2; scene.add(pilar28);
     });
-
-    cargarModeloSeguro("assets/muro.glb", function(modelomuro) {
-        modelomuro.scale.set(30, 22, 10);
-        var pilar22 = modelomuro.clone(); pilar22.position.set(103, 0, -125); pilar22.rotation.y = Math.PI / 2; scene.add(pilar22);
-        var pilar23 = modelomuro.clone(); pilar23.position.set(103, 0, -153); pilar23.rotation.y = Math.PI / 2; scene.add(pilar23);
-        var pilar24 = modelomuro.clone(); pilar24.position.set(103, 0, -181); pilar24.rotation.y = Math.PI / 2; scene.add(pilar24);
-        var pilar25 = modelomuro.clone(); pilar25.position.set(103, 1, -60); pilar25.rotation.y = Math.PI / 2; scene.add(pilar25);
-        var pilar26 = modelomuro.clone(); pilar26.position.set(103, 1, -31); pilar26.rotation.y = Math.PI / 2; scene.add(pilar26);
-        var pilar27 = modelomuro.clone(); pilar27.position.set(103, 1, 31); pilar27.rotation.y = Math.PI / 2; scene.add(pilar27);
-        var pilar28 = modelomuro.clone(); pilar28.position.set(103, 1, 60); pilar28.rotation.y = Math.PI / 2; scene.add(pilar28);
-        var pilar29 = modelomuro.clone(); pilar29.position.set(103, 1, 89); pilar29.rotation.y = Math.PI / 2; scene.add(pilar29);
-        var pilar30 = modelomuro.clone(); pilar30.position.set(103, 1, 118); pilar30.rotation.y = Math.PI / 2; scene.add(pilar30);
-        var pilar31 = modelomuro.clone(); pilar31.position.set(103.5, 1, 135); pilar31.rotation.y = Math.PI / 2; scene.add(pilar31);
-    });
-
-    cargarModeloSeguro("assets/puertasiglo.glb", function(modelopuerta) {
-        modelopuerta.scale.set(35, 43, 25);
-        var pilar22 = modelopuerta.clone(); pilar22.position.set(101.5, 2, 0.5); pilar22.rotation.y = -Math.PI / 2; scene.add(pilar22);
-    });
-
     window.addEventListener('resize', onWindowResize, false);
 }
 
